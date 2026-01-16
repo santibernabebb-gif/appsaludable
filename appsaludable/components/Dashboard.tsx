@@ -1,6 +1,7 @@
 
 import React from 'react';
-import { WeeklyPlan, UserData, Meal, DailyPlan } from '../types';
+import { WeeklyPlan, UserData } from '../types';
+import { jsPDF } from "jspdf";
 
 interface Props {
   plan: WeeklyPlan;
@@ -18,6 +19,106 @@ const Dashboard: React.FC<Props> = ({ plan, userData, nutrition, onFinishWeek })
     }
   };
 
+  const handleDownloadPDF = () => {
+    const doc = new jsPDF();
+    const emerald = [5, 150, 105]; // RGB Emerald-600
+    const slate = [30, 41, 59]; // RGB Slate-800
+    
+    // PORTADA
+    doc.setFillColor(emerald[0], emerald[1], emerald[2]);
+    doc.rect(0, 0, 210, 40, 'F');
+    
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(22);
+    doc.setFont("helvetica", "bold");
+    doc.text("Santisystems", 20, 25);
+    
+    doc.setFontSize(12);
+    doc.text("Plan Nutricional Personalizado", 20, 32);
+    
+    // INFO USUARIO
+    doc.setTextColor(slate[0], slate[1], slate[2]);
+    doc.setFontSize(14);
+    doc.text("Resumen del Perfil", 20, 55);
+    
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    doc.text(`Objetivo: ${nutrition.target} kcal/día`, 20, 65);
+    doc.text(`Dieta: ${userData.diet}`, 20, 70);
+    doc.text(`Régimen: ${userData.fastingType !== 'none' ? 'Ayuno 16:8' : 'Tradicional'} (${getFastingLabel()})`, 20, 75);
+    doc.text(`Fecha: ${new Date().toLocaleDateString('es-ES')}`, 20, 80);
+    
+    let y = 95;
+
+    // DIAS
+    plan.days.forEach((day, index) => {
+      if (y > 240) {
+        doc.addPage();
+        y = 20;
+      }
+      
+      doc.setFillColor(248, 250, 252); // bg-slate-50
+      doc.rect(15, y - 5, 180, 12, 'F');
+      
+      doc.setTextColor(emerald[0], emerald[1], emerald[2]);
+      doc.setFontSize(12);
+      doc.setFont("helvetica", "bold");
+      doc.text(`${day.day.toUpperCase()} - ${day.totalCalories} kcal`, 20, y + 3);
+      
+      y += 15;
+      
+      day.meals.forEach(meal => {
+        if (y > 260) {
+          doc.addPage();
+          y = 20;
+        }
+        
+        doc.setTextColor(slate[0], slate[1], slate[2]);
+        doc.setFontSize(10);
+        doc.setFont("helvetica", "bold");
+        doc.text(`${meal.type}: ${meal.name}`, 25, y);
+        
+        doc.setFontSize(8);
+        doc.setFont("helvetica", "italic");
+        doc.setTextColor(100, 116, 139);
+        doc.text(`(${meal.calories} kcal)`, 170, y);
+        
+        y += 5;
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(71, 85, 105);
+        const ingredients = meal.ingredients.join(", ");
+        const splitIng = doc.splitTextToSize(`Ingredientes: ${ingredients}`, 160);
+        doc.text(splitIng, 30, y);
+        
+        y += (splitIng.length * 4) + 2;
+      });
+      
+      y += 10;
+    });
+
+    // LISTA DE LA COMPRA
+    doc.addPage();
+    doc.setFillColor(emerald[0], emerald[1], emerald[2]);
+    doc.rect(0, 0, 210, 30, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(18);
+    doc.text("Lista de la Compra", 20, 20);
+    
+    doc.setTextColor(slate[0], slate[1], slate[2]);
+    doc.setFontSize(10);
+    let ly = 45;
+    plan.shoppingList.forEach((item, i) => {
+      if (ly > 270) {
+        doc.addPage();
+        ly = 20;
+      }
+      doc.text(`[ ] ${item}`, 20, ly);
+      ly += 7;
+    });
+
+    doc.save(`Plan_Santisystems_${new Date().toISOString().split('T')[0]}.pdf`);
+  };
+
   return (
     <div className="max-w-4xl mx-auto space-y-8 animate-fade-in px-4">
       
@@ -27,10 +128,17 @@ const Dashboard: React.FC<Props> = ({ plan, userData, nutrition, onFinishWeek })
           <h2 className="text-3xl font-black text-slate-900 tracking-tight">Tu Plan Semanal</h2>
           <p className="text-slate-500 font-medium italic">Todo el contenido disponible para tu seguimiento diario.</p>
         </div>
-        <div className="flex gap-3 w-full md:w-auto">
+        <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+          <button 
+            onClick={handleDownloadPDF}
+            className="flex-grow sm:flex-none bg-slate-100 text-slate-700 px-6 py-4 rounded-2xl font-bold hover:bg-slate-200 transition-all flex items-center justify-center gap-2"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+            Descargar PDF
+          </button>
           <button 
             onClick={onFinishWeek}
-            className="flex-grow md:flex-none bg-emerald-600 text-white px-10 py-4 rounded-2xl font-bold shadow-lg shadow-emerald-200 hover:bg-emerald-700 transition-all flex items-center justify-center gap-2"
+            className="flex-grow md:flex-none bg-emerald-600 text-white px-8 py-4 rounded-2xl font-bold shadow-lg shadow-emerald-200 hover:bg-emerald-700 transition-all flex items-center justify-center gap-2"
           >
             Finalizar Semana
           </button>
