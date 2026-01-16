@@ -23,10 +23,18 @@ export async function onRequestPost(context) {
       fastingInstruction = "IMPORTANTE: El usuario realiza AYUNO INTERMITENTE 16:8 (Ventana 09:00h a 17:00h). Todas las comidas deben ocurrir estrictamente en ese horario.";
     }
 
+    // Semilla aleatoria para forzar a la IA a cambiar de contexto cada vez
+    const randomSeed = Math.floor(Math.random() * 10000000);
+
     const prompt = `
-      Actúa como un Nutricionista Colegiado experto en Dieta Mediterránea. 
+      Actúa como un Nutricionista Colegiado experto en Dieta Mediterránea CREATIVA y variada. 
       Genera un plan de alimentación detallado para 7 días completos (Lunes a Domingo).
       
+      MISIÓN CRÍTICA DE VARIEDAD (Semilla Aleatoria: ${randomSeed}):
+      Es OBLIGATORIO que este plan sea TOTALMENTE DIFERENTE a cualquier plan estándar. 
+      Evita la repetición. Si el plan anterior fue de un estilo, este debe ser radicalmente variado en ingredientes (pescados, carnes magras, legumbres diversas, verduras de temporada, cereales integrales variados).
+      No queremos que el usuario coma lo mismo cada semana. Sorpréndele con recetas mediterráneas saludables, coloridas y modernas.
+
       PERFIL DE USUARIO:
       - Objetivo Calórico: ${targetCalories} kcal/día (Margen +/- 5%).
       - Tipo de Dieta: ${userData.diet}.
@@ -37,9 +45,9 @@ export async function onRequestPost(context) {
       - ${fastingInstruction}
 
       REGLAS DE RESPUESTA:
-      1. Solo responde con el objeto JSON solicitado.
-      2. No incluyas lista de la compra global, ya que los ingredientes van en cada comida.
-      3. Asegura que los platos sean variados y apetecibles.
+      1. Solo responde con el objeto JSON solicitado. No añadidas texto extra.
+      2. No incluyas lista de la compra global (ya se detalla en ingredientes).
+      3. Asegura que los platos sean nutricionalmente equilibrados pero muy variados.
     `;
 
     const response = await ai.models.generateContent({
