@@ -72,7 +72,7 @@ const Onboarding: React.FC<Props> = ({ onComplete, onCancel }) => {
         
         {currentStep === 1 && (
           <div className="animate-fade-in space-y-6 flex-grow">
-            <header className="mb-8">
+            <header className="mb-8 text-center sm:text-left">
               <span className="text-[10px] font-black text-emerald-600 uppercase tracking-[0.2em]">Paso 1 de 4</span>
               <h2 className="text-2xl md:text-3xl font-bold text-slate-800 mt-1">Tu Salud Primero</h2>
               <p className="text-slate-500 mt-2">Queremos que tu experiencia sea perfecta. Confírmanos si te encuentras en alguna de estas situaciones:</p>
@@ -82,6 +82,11 @@ const Onboarding: React.FC<Props> = ({ onComplete, onCancel }) => {
               <SafetyCard label="Menor de 18 años" onCheck={() => handleSafetyCheck(true)} />
               <SafetyCard label="Diabetes, TCA o patología cardíaca" onCheck={() => handleSafetyCheck(true)} />
               <SafetyCard label="Medicación Metabólica Especial" onCheck={() => handleSafetyCheck(true)} />
+            </div>
+            <div className="bg-emerald-50/50 border border-emerald-100 p-4 rounded-2xl mt-4">
+              <p className="text-[11px] text-emerald-700 font-bold text-center leading-relaxed">
+                👉 Si no te encuentras en ninguna de las situaciones anteriores, simplemente pulsa el botón <span className="uppercase">"Continuar"</span> para seguir configurando tu perfil.
+              </p>
             </div>
           </div>
         )}

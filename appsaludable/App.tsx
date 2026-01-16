@@ -55,7 +55,7 @@ const App: React.FC = () => {
       setStep('dashboard');
     } catch (e: any) {
       console.error("Error detallado:", e);
-      setError(e.message || "No pudimos conectar con el nutricionista digital. Revisa tu conexión y la configuración de la API Key.");
+      setError(e.message || "No pudimos conectar con el nutricionista digital. Revisa tu conexión.");
       setStep('onboarding');
     }
   };
@@ -103,9 +103,12 @@ const App: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">
       <header className={`px-6 py-4 flex justify-between items-center z-50 transition-all ${step === 'dashboard' || step === 'history' ? 'bg-white border-b sticky top-0' : 'bg-transparent'}`}>
-        <div className="flex items-center gap-2 cursor-pointer" onClick={() => setStep('welcome')}>
-          <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-emerald-200">S</div>
-          <span className="font-bold text-slate-800 tracking-tight">Santisystems</span>
+        <div className="flex items-center gap-3 cursor-pointer group" onClick={() => setStep('welcome')}>
+          <div className="w-9 h-9 bg-emerald-600 rounded-xl flex items-center justify-center text-white font-black text-lg shadow-lg shadow-emerald-200 group-hover:scale-105 transition-transform">A</div>
+          <div className="flex flex-col">
+            <span className="font-black text-slate-900 leading-tight text-base md:text-lg">Adelgaza Saludable</span>
+            <span className="text-[9px] font-bold text-emerald-600 uppercase tracking-[0.15em]">by SantiSystems</span>
+          </div>
         </div>
         
         <div className="flex items-center gap-2">
@@ -171,7 +174,7 @@ const App: React.FC = () => {
         <div className="max-w-5xl mx-auto px-6">
           <div className="grid md:grid-cols-2 gap-12 mb-12">
             <div className="space-y-4">
-              <h3 className="font-bold text-slate-800">Compromiso con tu salud</h3>
+              <h3 className="font-bold text-slate-800 tracking-tight">Compromiso con tu salud</h3>
               <p className="text-sm text-slate-500 leading-relaxed">
                 Nuestros algoritmos están diseñados para fomentar una pérdida de peso sostenible y saludable, siguiendo patrones de Dieta Mediterránea.
               </p>
@@ -180,15 +183,15 @@ const App: React.FC = () => {
               </div>
             </div>
             <div className="space-y-4">
-              <h3 className="font-bold text-slate-800">Nota Legal</h3>
+              <h3 className="font-bold text-slate-800 tracking-tight">Nota Legal</h3>
               <p className="text-sm text-slate-500 leading-relaxed">
-                Santisystems es una herramienta informativa. Cualquier cambio drástico en tu dieta debe ser supervisado por un profesional sanitario.
+                Adelgaza Saludable es una herramienta informativa de SantiSystems. Cualquier cambio drástico en tu dieta debe ser supervisado por un profesional sanitario.
               </p>
             </div>
           </div>
           <div className="pt-8 border-t text-center">
             <p className="text-[11px] text-slate-400 uppercase tracking-[0.2em] font-bold">
-              © 2026 Santisystems · Bienestar e Inteligencia Real
+              © 2026 Adelgaza Saludable · by SantiSystems
             </p>
           </div>
         </div>

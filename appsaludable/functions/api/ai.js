@@ -24,19 +24,22 @@ export async function onRequestPost(context) {
     }
 
     const prompt = `
-      Actúa como un Nutricionista Colegiado en España. 
-      Genera un plan de alimentación detallado para 7 días completos.
+      Actúa como un Nutricionista Colegiado experto en Dieta Mediterránea. 
+      Genera un plan de alimentación detallado para 7 días completos (Lunes a Domingo).
       
       PERFIL DE USUARIO:
-      - Objetivo Calórico: ${targetCalories} kcal/día.
+      - Objetivo Calórico: ${targetCalories} kcal/día (Margen +/- 5%).
       - Tipo de Dieta: ${userData.diet}.
       - Alergias/Intolerancias: ${userData.allergies || 'Ninguna'}.
       - Alimentos a evitar: ${userData.dislikedFoods || 'Ninguno'}.
-      - Presupuesto: ${userData.budget}.
-      - Tiempo disponible: ${userData.cookingTime}.
+      - Presupuesto: ${userData.budget} (ajusta ingredientes según esto).
+      - Tiempo de cocina: ${userData.cookingTime}.
       - ${fastingInstruction}
 
-      Responde estrictamente en JSON.
+      REGLAS DE RESPUESTA:
+      1. Solo responde con el objeto JSON solicitado.
+      2. No incluyas lista de la compra global, ya que los ingredientes van en cada comida.
+      3. Asegura que los platos sean variados y apetecibles.
     `;
 
     const response = await ai.models.generateContent({
@@ -46,7 +49,7 @@ export async function onRequestPost(context) {
         responseMimeType: "application/json",
         responseSchema: {
           type: "OBJECT",
-          required: ["days", "shoppingList"],
+          required: ["days"],
           properties: {
             days: {
               type: "ARRAY",
@@ -75,8 +78,7 @@ export async function onRequestPost(context) {
                   }
                 }
               }
-            },
-            shoppingList: { type: "ARRAY", items: { type: "STRING" } }
+            }
           }
         }
       }

@@ -31,22 +31,22 @@ const Dashboard: React.FC<Props> = ({ plan, userData, nutrition, onFinishWeek })
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(22);
     doc.setFont("helvetica", "bold");
-    doc.text("Santisystems", 20, 25);
+    doc.text("Adelgaza Saludable", 20, 25);
     
-    doc.setFontSize(12);
-    doc.text("Plan Nutricional Personalizado", 20, 32);
+    doc.setFontSize(10);
+    doc.text("by SantiSystems · Plan Personalizado", 20, 32);
     
     // INFO USUARIO
     doc.setTextColor(slate[0], slate[1], slate[2]);
     doc.setFontSize(14);
-    doc.text("Resumen del Perfil", 20, 55);
+    doc.text("Resumen del Perfil Nutricional", 20, 55);
     
     doc.setFontSize(10);
     doc.setFont("helvetica", "normal");
     doc.text(`Objetivo: ${nutrition.target} kcal/día`, 20, 65);
     doc.text(`Dieta: ${userData.diet}`, 20, 70);
     doc.text(`Régimen: ${userData.fastingType !== 'none' ? 'Ayuno 16:8' : 'Tradicional'} (${getFastingLabel()})`, 20, 75);
-    doc.text(`Fecha: ${new Date().toLocaleDateString('es-ES')}`, 20, 80);
+    doc.text(`Fecha de generación: ${new Date().toLocaleDateString('es-ES')}`, 20, 80);
     
     let y = 95;
 
@@ -96,27 +96,7 @@ const Dashboard: React.FC<Props> = ({ plan, userData, nutrition, onFinishWeek })
       y += 10;
     });
 
-    // LISTA DE LA COMPRA
-    doc.addPage();
-    doc.setFillColor(emerald[0], emerald[1], emerald[2]);
-    doc.rect(0, 0, 210, 30, 'F');
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(18);
-    doc.text("Lista de la Compra", 20, 20);
-    
-    doc.setTextColor(slate[0], slate[1], slate[2]);
-    doc.setFontSize(10);
-    let ly = 45;
-    plan.shoppingList.forEach((item, i) => {
-      if (ly > 270) {
-        doc.addPage();
-        ly = 20;
-      }
-      doc.text(`[ ] ${item}`, 20, ly);
-      ly += 7;
-    });
-
-    doc.save(`Plan_Santisystems_${new Date().toISOString().split('T')[0]}.pdf`);
+    doc.save(`Plan_Saludable_${new Date().toISOString().split('T')[0]}.pdf`);
   };
 
   return (
@@ -126,7 +106,7 @@ const Dashboard: React.FC<Props> = ({ plan, userData, nutrition, onFinishWeek })
       <div className="bg-white p-6 md:p-10 rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col md:flex-row justify-between items-center gap-6">
         <div>
           <h2 className="text-3xl font-black text-slate-900 tracking-tight">Tu Plan Semanal</h2>
-          <p className="text-slate-500 font-medium italic">Todo el contenido disponible para tu seguimiento diario.</p>
+          <p className="text-slate-500 font-medium italic">Todo el contenido detallado para tu éxito.</p>
         </div>
         <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
           <button 
@@ -207,17 +187,10 @@ const Dashboard: React.FC<Props> = ({ plan, userData, nutrition, onFinishWeek })
           </div>
         ))}
 
-        {/* LISTA DE COMPRA FINAL */}
-        <div className="bg-slate-900 text-white p-10 md:p-16 rounded-[3rem]">
-          <h2 className="text-3xl font-black mb-8">🛒 Lista de la Compra</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-4">
-            {plan.shoppingList.map((item, i) => (
-              <div key={i} className="flex items-center gap-3 p-2 border-b border-slate-800 text-sm">
-                <div className="w-4 h-4 border-2 border-slate-700 rounded shrink-0"></div>
-                <span className="text-slate-300">{item}</span>
-              </div>
-            ))}
-          </div>
+        <div className="bg-emerald-600/5 border border-emerald-100 p-8 rounded-[2.5rem] text-center">
+          <p className="text-emerald-800 font-bold italic">
+            "Tu plan ha sido diseñado para ser flexible. Si no tienes un ingrediente, sustitúyelo por otro similar del mismo grupo alimenticio."
+          </p>
         </div>
       </div>
     </div>
