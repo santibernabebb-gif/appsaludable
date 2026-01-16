@@ -9,20 +9,6 @@ import Welcome from './components/Welcome';
 import Onboarding from './components/Onboarding';
 import History from './components/History';
 
-// Extendemos window para las funciones de AI Studio
-declare global {
-  // Definimos la interfaz AIStudio para que coincida con el tipo global esperado por el entorno
-  interface AIStudio {
-    hasSelectedApiKey: () => Promise<boolean>;
-    openSelectKey: () => Promise<void>;
-  }
-
-  interface Window {
-    // Declaramos aistudio usando el tipo AIStudio para evitar conflictos de tipos y modificadores
-    aistudio: AIStudio;
-  }
-}
-
 const App: React.FC = () => {
   const [step, setStep] = useState<'welcome' | 'onboarding' | 'loading' | 'dashboard' | 'history'>('welcome');
   const [userData, setUserData] = useState<UserData | null>(null);
@@ -53,18 +39,6 @@ const App: React.FC = () => {
   }, []);
 
   const handleOnboardingComplete = async (data: UserData) => {
-    // 1. Verificación de API Key (Obligatoria según lineamientos)
-    try {
-      const hasKey = await window.aistudio.hasSelectedApiKey();
-      if (!hasKey) {
-        setError("Para generar tu plan personalizado, selecciona una clave de API de un proyecto con facturación activa.");
-        await window.aistudio.openSelectKey();
-        // Asumimos éxito tras abrir el diálogo para evitar race conditions
-      }
-    } catch (e) {
-      console.error("Error al verificar la API Key:", e);
-    }
-
     setUserData(data);
     const nut = calculateNutrition(data);
     setNutrition(nut);
@@ -81,14 +55,7 @@ const App: React.FC = () => {
       setStep('dashboard');
     } catch (e: any) {
       console.error("Error detallado:", e);
-      
-      // Manejo específico para errores de API Key / Facturación
-      if (e.message?.includes("Requested entity was not found") || e.message?.includes("404")) {
-        setError("Tu proyecto de Google Cloud no parece estar vinculado correctamente o carece de facturación. Selecciona una clave válida.");
-        await window.aistudio.openSelectKey();
-      } else {
-        setError("No pudimos contactar con el nutricionista digital. Por favor, revisa tu conexión e inténtalo de nuevo.");
-      }
+      setError(e.message || "No pudimos conectar con el nutricionista digital. Revisa tu conexión y la configuración de la API Key.");
       setStep('onboarding');
     }
   };
@@ -169,12 +136,6 @@ const App: React.FC = () => {
             <div className="bg-red-50 text-red-700 p-4 rounded-2xl flex items-center gap-3 border border-red-100 shadow-sm animate-fade-in">
               <ICONS.Alert />
               <p className="text-xs md:text-sm font-medium">{error}</p>
-              <button 
-                onClick={() => window.aistudio.openSelectKey()}
-                className="ml-auto bg-white px-3 py-1.5 rounded-lg text-xs font-bold border border-red-200 shadow-sm hover:bg-red-100"
-              >
-                Cambiar Clave
-              </button>
             </div>
           </div>
         )}
@@ -216,7 +177,6 @@ const App: React.FC = () => {
               </p>
               <div className="flex flex-wrap gap-4 pt-2">
                 <a href={HEALTH_LINKS.NAOS} target="_blank" className="text-xs font-bold text-emerald-600 hover:text-emerald-700">Estrategia NAOS →</a>
-                <a href="https://ai.google.dev/gemini-api/docs/billing" target="_blank" className="text-xs font-bold text-slate-400 hover:text-slate-600">Documentación de Facturación</a>
               </div>
             </div>
             <div className="space-y-4">

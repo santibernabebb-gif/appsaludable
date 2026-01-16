@@ -3,7 +3,8 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { UserData, WeeklyPlan } from "../types";
 
 export const generatePlan = async (userData: UserData, targetCalories: number): Promise<WeeklyPlan> => {
-  // Inicialización dinámica para capturar siempre la clave más reciente (especialmente tras usar openSelectKey)
+  // Use the API key from process.env.API_KEY exclusively as per the @google/genai guidelines.
+  // The key is assumed to be pre-configured and accessible in the execution context.
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   
   let fastingInstruction = "";
@@ -37,7 +38,7 @@ export const generatePlan = async (userData: UserData, targetCalories: number): 
   `;
 
   try {
-    // Usamos gemini-3-pro-preview para tareas complejas de planificación y razonamiento nutricional
+    // Call generateContent with the model name and prompt directly.
     const response = await ai.models.generateContent({
       model: "gemini-3-pro-preview",
       contents: prompt,
@@ -81,12 +82,12 @@ export const generatePlan = async (userData: UserData, targetCalories: number): 
       }
     });
 
+    // Access the .text property directly to extract the generated string output.
     const jsonStr = response.text?.trim();
     if (!jsonStr) throw new Error("La respuesta de la IA está vacía.");
     return JSON.parse(jsonStr);
   } catch (error: any) {
     console.error("Error en geminiService:", error);
-    // Propagamos el error original para que App.tsx pueda identificar si es un 404 de API Key
     throw error;
   }
 };
