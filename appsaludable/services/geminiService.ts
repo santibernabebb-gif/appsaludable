@@ -2,8 +2,8 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { UserData, WeeklyPlan } from "../types";
 
-// Fix: Initialize GoogleGenAI strictly following the named parameter requirement and process.env.API_KEY usage
 export const generatePlan = async (userData: UserData, targetCalories: number): Promise<WeeklyPlan> => {
+  // Inicialización dinámica para capturar siempre la clave más reciente (especialmente tras usar openSelectKey)
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   
   let fastingInstruction = "";
@@ -31,14 +31,14 @@ export const generatePlan = async (userData: UserData, targetCalories: number): 
     REGLAS DE RIGOR NUTRICIONAL:
     1. Basado estrictamente en la Dieta Mediterránea y la Estrategia NAOS (España).
     2. Usa ingredientes locales (aceite de oliva, legumbres, pescado, verduras frescas).
-    3. Cada comida debe incluir la HORA RECOMENDADA (formato HH:MM) coherente con el estilo de vida del usuario, ingredientes, instrucciones, calorías y tiempo de preparación.
+    3. Cada comida debe incluir la HORA RECOMENDADA coherente con el estilo de vida, ingredientes, instrucciones, calorías y tiempo de preparación.
     
     IMPORTANTE: Responde ÚNICAMENTE en formato JSON válido.
   `;
 
   try {
+    // Usamos gemini-3-pro-preview para tareas complejas de planificación y razonamiento nutricional
     const response = await ai.models.generateContent({
-      // Fix: Use 'gemini-3-pro-preview' for complex nutritional planning and reasoning tasks
       model: "gemini-3-pro-preview",
       contents: prompt,
       config: {
@@ -68,8 +68,7 @@ export const generatePlan = async (userData: UserData, targetCalories: number): 
                         ingredients: { type: Type.ARRAY, items: { type: Type.STRING } },
                         instructions: { type: Type.ARRAY, items: { type: Type.STRING } },
                         calories: { type: Type.NUMBER },
-                        prepTime: { type: Type.STRING },
-                        alternatives: { type: Type.ARRAY, items: { type: Type.STRING } }
+                        prepTime: { type: Type.STRING }
                       }
                     }
                   }
@@ -82,11 +81,12 @@ export const generatePlan = async (userData: UserData, targetCalories: number): 
       }
     });
 
-    // Fix: Use .text property directly and trim to get the JSON string as per guidelines
-    const jsonStr = response.text?.trim() || "{}";
+    const jsonStr = response.text?.trim();
+    if (!jsonStr) throw new Error("La respuesta de la IA está vacía.");
     return JSON.parse(jsonStr);
-  } catch (error) {
-    console.error("Error al generar el plan con Gemini:", error);
-    throw new Error("No se pudo generar el plan. Inténtalo de nuevo.");
+  } catch (error: any) {
+    console.error("Error en geminiService:", error);
+    // Propagamos el error original para que App.tsx pueda identificar si es un 404 de API Key
+    throw error;
   }
 };

@@ -3,11 +3,25 @@ import React, { useState, useEffect } from 'react';
 import { UserData, WeeklyPlan, PlanHistoryEntry } from './types';
 import { calculateNutrition } from './utils/calculators';
 import { generatePlan } from './services/geminiService';
-import { HEALTH_LINKS, HEALTH_CRITERIA, ICONS } from './constants';
+import { HEALTH_LINKS, ICONS } from './constants';
 import Dashboard from './components/Dashboard';
 import Welcome from './components/Welcome';
 import Onboarding from './components/Onboarding';
 import History from './components/History';
+
+// Extendemos window para las funciones de AI Studio
+declare global {
+  // Definimos la interfaz AIStudio para que coincida con el tipo global esperado por el entorno
+  interface AIStudio {
+    hasSelectedApiKey: () => Promise<boolean>;
+    openSelectKey: () => Promise<void>;
+  }
+
+  interface Window {
+    // Declaramos aistudio usando el tipo AIStudio para evitar conflictos de tipos y modificadores
+    aistudio: AIStudio;
+  }
+}
 
 const App: React.FC = () => {
   const [step, setStep] = useState<'welcome' | 'onboarding' | 'loading' | 'dashboard' | 'history'>('welcome');
@@ -38,19 +52,19 @@ const App: React.FC = () => {
     }
   }, []);
 
-  const saveToHistory = (currentPlan: WeeklyPlan, currentUser: UserData) => {
-    const newEntry: PlanHistoryEntry = {
-      id: currentPlan.id || Date.now().toString(),
-      date: new Date().toLocaleDateString('es-ES'),
-      plan: currentPlan,
-      userData: currentUser
-    };
-    const updatedHistory = [newEntry, ...history];
-    setHistory(updatedHistory);
-    localStorage.setItem('santi_history', JSON.stringify(updatedHistory));
-  };
-
   const handleOnboardingComplete = async (data: UserData) => {
+    // 1. Verificación de API Key (Obligatoria según lineamientos)
+    try {
+      const hasKey = await window.aistudio.hasSelectedApiKey();
+      if (!hasKey) {
+        setError("Para generar tu plan personalizado, selecciona una clave de API de un proyecto con facturación activa.");
+        await window.aistudio.openSelectKey();
+        // Asumimos éxito tras abrir el diálogo para evitar race conditions
+      }
+    } catch (e) {
+      console.error("Error al verificar la API Key:", e);
+    }
+
     setUserData(data);
     const nut = calculateNutrition(data);
     setNutrition(nut);
@@ -66,14 +80,31 @@ const App: React.FC = () => {
       localStorage.setItem('santi_user', JSON.stringify(data));
       setStep('dashboard');
     } catch (e: any) {
-      setError("Error al conectar con el nutricionista. Inténtalo de nuevo.");
+      console.error("Error detallado:", e);
+      
+      // Manejo específico para errores de API Key / Facturación
+      if (e.message?.includes("Requested entity was not found") || e.message?.includes("404")) {
+        setError("Tu proyecto de Google Cloud no parece estar vinculado correctamente o carece de facturación. Selecciona una clave válida.");
+        await window.aistudio.openSelectKey();
+      } else {
+        setError("No pudimos contactar con el nutricionista digital. Por favor, revisa tu conexión e inténtalo de nuevo.");
+      }
       setStep('onboarding');
     }
   };
 
   const handleFinishWeek = () => {
     if (plan && userData) {
-      saveToHistory(plan, userData);
+      const newEntry: PlanHistoryEntry = {
+        id: plan.id || Date.now().toString(),
+        date: new Date().toLocaleDateString('es-ES'),
+        plan: plan,
+        userData: userData
+      };
+      const updatedHistory = [newEntry, ...history];
+      setHistory(updatedHistory);
+      localStorage.setItem('santi_history', JSON.stringify(updatedHistory));
+      
       setPlan(null);
       localStorage.removeItem('santi_active_plan');
       setStep('onboarding');
@@ -104,7 +135,7 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">
-      <header className={`px-6 py-4 flex justify-between items-center z-50 transition-all no-print ${step === 'dashboard' || step === 'history' ? 'bg-white border-b sticky top-0' : 'bg-transparent'}`}>
+      <header className={`px-6 py-4 flex justify-between items-center z-50 transition-all ${step === 'dashboard' || step === 'history' ? 'bg-white border-b sticky top-0' : 'bg-transparent'}`}>
         <div className="flex items-center gap-2 cursor-pointer" onClick={() => setStep('welcome')}>
           <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-emerald-200">S</div>
           <span className="font-bold text-slate-800 tracking-tight">Santisystems</span>
@@ -134,10 +165,16 @@ const App: React.FC = () => {
 
       <main className="flex-grow">
         {error && (
-          <div className="max-w-2xl mx-auto mt-4 px-4 no-print">
+          <div className="max-w-2xl mx-auto mt-4 px-4">
             <div className="bg-red-50 text-red-700 p-4 rounded-2xl flex items-center gap-3 border border-red-100 shadow-sm animate-fade-in">
               <ICONS.Alert />
-              <p className="text-sm font-medium">{error}</p>
+              <p className="text-xs md:text-sm font-medium">{error}</p>
+              <button 
+                onClick={() => window.aistudio.openSelectKey()}
+                className="ml-auto bg-white px-3 py-1.5 rounded-lg text-xs font-bold border border-red-200 shadow-sm hover:bg-red-100"
+              >
+                Cambiar Clave
+              </button>
             </div>
           </div>
         )}
@@ -169,7 +206,7 @@ const App: React.FC = () => {
         )}
       </main>
 
-      <footer className="bg-white border-t py-12 no-print">
+      <footer className="bg-white border-t py-12">
         <div className="max-w-5xl mx-auto px-6">
           <div className="grid md:grid-cols-2 gap-12 mb-12">
             <div className="space-y-4">
@@ -179,7 +216,7 @@ const App: React.FC = () => {
               </p>
               <div className="flex flex-wrap gap-4 pt-2">
                 <a href={HEALTH_LINKS.NAOS} target="_blank" className="text-xs font-bold text-emerald-600 hover:text-emerald-700">Estrategia NAOS →</a>
-                <a href={HEALTH_LINKS.AESAN_RECOMMENDATIONS} target="_blank" className="text-xs font-bold text-emerald-600 hover:text-emerald-700">AESAN →</a>
+                <a href="https://ai.google.dev/gemini-api/docs/billing" target="_blank" className="text-xs font-bold text-slate-400 hover:text-slate-600">Documentación de Facturación</a>
               </div>
             </div>
             <div className="space-y-4">
