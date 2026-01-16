@@ -103,15 +103,33 @@ const Onboarding: React.FC<Props> = ({ onComplete, onCancel }) => {
               </div>
               <div className="col-span-2 md:col-span-1">
                 <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 text-center">Edad</label>
-                <input type="number" value={data.age} onChange={e => setData({...data, age: +e.target.value})} className="w-full p-4 bg-slate-50 border-0 rounded-2xl focus:ring-2 focus:ring-emerald-500 text-center font-bold text-xl" />
+                <input 
+                  type="number" 
+                  value={data.age || ''} 
+                  onFocus={() => setData({...data, age: '' as any})}
+                  onChange={e => setData({...data, age: e.target.value === '' ? '' as any : +e.target.value})} 
+                  className="w-full p-4 bg-slate-50 border-0 rounded-2xl focus:ring-2 focus:ring-emerald-500 text-center font-bold text-xl" 
+                />
               </div>
               <div>
                 <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 text-center">Peso (kg)</label>
-                <input type="number" value={data.weight} onChange={e => setData({...data, weight: +e.target.value})} className="w-full p-4 bg-slate-50 border-0 rounded-2xl focus:ring-2 focus:ring-emerald-500 text-center font-bold text-xl" />
+                <input 
+                  type="number" 
+                  value={data.weight || ''} 
+                  onFocus={() => setData({...data, weight: '' as any})}
+                  onChange={e => setData({...data, weight: e.target.value === '' ? '' as any : +e.target.value})} 
+                  className="w-full p-4 bg-slate-50 border-0 rounded-2xl focus:ring-2 focus:ring-emerald-500 text-center font-bold text-xl" 
+                />
               </div>
               <div>
                 <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 text-center">Altura (cm)</label>
-                <input type="number" value={data.height} onChange={e => setData({...data, height: +e.target.value})} className="w-full p-4 bg-slate-50 border-0 rounded-2xl focus:ring-2 focus:ring-emerald-500 text-center font-bold text-xl" />
+                <input 
+                  type="number" 
+                  value={data.height || ''} 
+                  onFocus={() => setData({...data, height: '' as any})}
+                  onChange={e => setData({...data, height: e.target.value === '' ? '' as any : +e.target.value})} 
+                  className="w-full p-4 bg-slate-50 border-0 rounded-2xl focus:ring-2 focus:ring-emerald-500 text-center font-bold text-xl" 
+                />
               </div>
             </div>
           </div>
