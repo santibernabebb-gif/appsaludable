@@ -102,12 +102,12 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">
-      <header className={`px-4 py-2 flex justify-between items-center z-50 transition-all ${step === 'dashboard' || step === 'history' ? 'bg-white border-b sticky top-0 shadow-sm' : 'bg-transparent'}`}>
-        <div className="flex items-center gap-2 cursor-pointer group" onClick={() => setStep('welcome')}>
-          <div className="w-7 h-7 bg-emerald-600 rounded-lg flex items-center justify-center text-white font-black text-xs shadow-lg shadow-emerald-200 group-hover:scale-105 transition-transform">A</div>
+      <header className={`px-5 py-3 md:py-4 flex justify-between items-center z-50 transition-all ${step === 'dashboard' || step === 'history' ? 'bg-white border-b sticky top-0 shadow-sm' : 'bg-transparent'}`}>
+        <div className="flex items-center gap-3 cursor-pointer group" onClick={() => setStep('welcome')}>
+          <div className="w-8 h-8 md:w-9 md:h-9 bg-emerald-600 rounded-xl flex items-center justify-center text-white font-black text-sm md:text-lg shadow-lg shadow-emerald-200 group-hover:scale-105 transition-transform">A</div>
           <div className="flex flex-col">
-            <span className="font-black text-slate-900 leading-tight text-xs md:text-sm">Adelgaza Saludable</span>
-            <span className="text-[7px] font-bold text-emerald-600 uppercase tracking-[0.1em]">by SantiSystems</span>
+            <span className="font-black text-slate-900 leading-tight text-sm md:text-base">Adelgaza Saludable</span>
+            <span className="text-[8px] md:text-[9px] font-bold text-emerald-600 uppercase tracking-[0.15em]">by SantiSystems</span>
           </div>
         </div>
         
@@ -115,19 +115,19 @@ const App: React.FC = () => {
           {(step === 'dashboard' || step === 'onboarding' || step === 'welcome') && history.length > 0 && (
             <button 
               onClick={() => setStep('history')}
-              className="px-2 py-1 text-[10px] font-bold text-slate-600 hover:bg-slate-100 rounded-lg transition-all"
+              className="px-3 py-1.5 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-xl transition-all"
             >
               Historial
             </button>
           )}
           {step === 'dashboard' && (
-            <button onClick={handleResetCurrent} className="p-1 text-slate-400 hover:text-orange-500 hover:bg-orange-50 rounded-full transition-all" title="Nueva Búsqueda">
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+            <button onClick={handleResetCurrent} className="p-2 text-slate-400 hover:text-orange-500 hover:bg-orange-50 rounded-full transition-all" title="Nueva Búsqueda">
+              <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
             </button>
           )}
           {(step === 'dashboard' || step === 'history') && (
-            <button onClick={handleClearAll} className="p-1 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-all" title="Borrar Todo">
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+            <button onClick={handleClearAll} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-all" title="Borrar Todo">
+              <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
             </button>
           )}
         </div>
@@ -135,10 +135,10 @@ const App: React.FC = () => {
 
       <main className="flex-grow">
         {error && (
-          <div className="max-w-2xl mx-auto mt-1 px-4">
-            <div className="bg-red-50 text-red-700 p-2 rounded-lg flex items-center gap-2 border border-red-100 shadow-sm animate-fade-in">
+          <div className="max-w-2xl mx-auto mt-2 px-4">
+            <div className="bg-red-50 text-red-700 p-3 rounded-xl flex items-center gap-3 border border-red-100 shadow-sm animate-fade-in">
               <ICONS.Alert />
-              <p className="text-[10px] font-medium">{error}</p>
+              <p className="text-xs font-medium">{error}</p>
             </div>
           </div>
         )}
@@ -159,7 +159,7 @@ const App: React.FC = () => {
         {step === 'loading' && <LoadingState />}
         {step === 'history' && <History entries={history} onSelect={viewOldPlan} onBack={() => setStep(plan ? 'dashboard' : 'welcome')} />}
         {step === 'dashboard' && plan && userData && (
-          <div className="py-2 px-2 md:px-4">
+          <div className="py-4 md:py-6 px-4">
             <Dashboard 
               plan={plan} 
               userData={userData} 
@@ -170,17 +170,17 @@ const App: React.FC = () => {
         )}
       </main>
 
-      <footer className="bg-white border-t py-4">
-        <div className="max-w-5xl mx-auto px-4">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left">
+      <footer className="bg-white border-t py-6 md:py-8">
+        <div className="max-w-5xl mx-auto px-6">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-6 text-center md:text-left">
             <div className="space-y-1">
-              <h3 className="text-[10px] font-bold text-slate-800 tracking-tight">Compromiso Saludable</h3>
-              <p className="text-[9px] text-slate-500">Dieta Mediterránea · AESAN · Sanidad</p>
+              <h3 className="text-xs md:text-sm font-bold text-slate-800 tracking-tight">Compromiso Saludable</h3>
+              <p className="text-[10px] md:text-xs text-slate-500">Dieta Mediterránea · Criterios AESAN · Ministerio de Sanidad</p>
             </div>
             <div className="flex gap-4">
-              <a href={HEALTH_LINKS.NAOS} target="_blank" className="text-[9px] font-bold text-emerald-600">Estrategia NAOS →</a>
+              <a href={HEALTH_LINKS.NAOS} target="_blank" className="text-xs font-bold text-emerald-600 hover:text-emerald-700">Estrategia NAOS →</a>
             </div>
-            <p className="text-[8px] text-slate-400 uppercase tracking-widest font-bold">
+            <p className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">
               © 2026 Adelgaza Saludable · by SantiSystems
             </p>
           </div>
@@ -191,12 +191,12 @@ const App: React.FC = () => {
 };
 
 const LoadingState: React.FC = () => (
-  <div className="flex flex-col items-center justify-center min-h-[40vh] text-center px-6">
-    <div className="relative mb-4">
-      <div className="w-12 h-12 border-4 border-emerald-100 border-t-emerald-600 rounded-full animate-spin"></div>
+  <div className="flex flex-col items-center justify-center min-h-[50vh] text-center px-6">
+    <div className="relative mb-6">
+      <div className="w-16 h-16 border-4 border-emerald-100 border-t-emerald-600 rounded-full animate-spin"></div>
     </div>
-    <h2 className="text-lg font-bold text-slate-800 mb-1 italic">"Cuidándote..."</h2>
-    <p className="text-[10px] text-slate-500 max-w-sm">Diseñando una semana variada y deliciosa solo para ti.</p>
+    <h2 className="text-xl font-bold text-slate-800 mb-2 italic">"Cuidándote..."</h2>
+    <p className="text-sm text-slate-500 max-w-sm">Estamos diseñando una semana variada y deliciosa pensada solo para ti.</p>
   </div>
 );
 

@@ -80,41 +80,44 @@ const Dashboard: React.FC<Props> = ({ plan, userData, nutrition, onFinishWeek })
   const currentDay = plan.days[activeDayIndex];
 
   return (
-    <div className="max-w-4xl mx-auto space-y-3 animate-fade-in">
-      <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex flex-col md:flex-row justify-between items-center gap-3">
+    <div className="max-w-4xl mx-auto space-y-6 animate-fade-in">
+      {/* CABECERA DE CONTROL WEB */}
+      <div className="bg-white p-6 md:p-8 rounded-[2rem] border border-slate-100 shadow-sm flex flex-col md:flex-row justify-between items-center gap-6">
         <div className="text-center md:text-left">
-          <h2 className="text-lg md:text-xl font-black text-slate-900 leading-tight">Tu Plan Semanal</h2>
-          <p className="text-[10px] text-slate-500 font-medium italic">Platos únicos y variados solo para ti.</p>
+          <h2 className="text-2xl md:text-3xl font-black text-slate-900 leading-tight tracking-tight">Tu Plan Semanal</h2>
+          <p className="text-xs md:text-sm text-slate-500 font-medium italic mt-1">Platos únicos y variados diseñados para ti.</p>
         </div>
-        <div className="flex gap-2 w-full md:w-auto">
-          <button onClick={handleDownloadPDF} className="bg-slate-50 p-2.5 rounded-xl border border-slate-200">
-            <svg className="w-4 h-4 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+        <div className="flex gap-3 w-full md:w-auto">
+          <button onClick={handleDownloadPDF} className="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 hover:bg-slate-100 transition-all flex items-center justify-center">
+            <svg className="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
           </button>
           <button 
             onClick={onFinishWeek}
-            className="flex-grow bg-emerald-600 text-white px-4 py-2.5 rounded-xl font-bold text-xs shadow-md shadow-emerald-100 transition-all"
+            className="flex-grow bg-emerald-600 text-white px-6 py-3.5 rounded-2xl font-bold text-sm md:text-base shadow-lg shadow-emerald-100 transition-all hover:bg-emerald-700 transform active:scale-95"
           >
             Crear nuevo plan semanal
           </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+      {/* RESUMEN RÁPIDO */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <StatCard label="Meta" value={`${nutrition.target} kcal`} sub="diarias" color="emerald" />
         <StatCard label="Dieta" value={userData.diet} sub="estilo" color="slate" />
-        <StatCard label="Gasto" value={`${nutrition.tdee} kcal`} sub="base" color="slate" />
+        <StatCard label="Gasto" value={`${nutrition.tdee} kcal`} sub="base diaria" color="slate" />
         <StatCard label="Régimen" value={getFastingLabel()} sub="horario" color="emerald" />
       </div>
 
-      <div className="flex overflow-x-auto pb-1 gap-1.5 scrollbar-hide no-scrollbar">
+      {/* NAVEGACIÓN POR DÍAS (PESTAÑAS) */}
+      <div className="flex overflow-x-auto pb-2 gap-2 scrollbar-hide no-scrollbar">
         {plan.days.map((day, idx) => (
           <button
             key={idx}
             onClick={() => setActiveDayIndex(idx)}
-            className={`px-3 py-1.5 rounded-lg font-bold text-[10px] transition-all whitespace-nowrap border ${
+            className={`px-5 py-3 rounded-xl font-bold text-xs md:text-sm transition-all whitespace-nowrap border-2 ${
               activeDayIndex === idx 
-                ? 'bg-emerald-600 border-emerald-600 text-white' 
-                : 'bg-white border-slate-100 text-slate-400 hover:text-emerald-600'
+                ? 'bg-emerald-600 border-emerald-600 text-white shadow-md' 
+                : 'bg-white border-slate-100 text-slate-400 hover:border-emerald-200 hover:text-emerald-600'
             }`}
           >
             {day.day}
@@ -122,39 +125,48 @@ const Dashboard: React.FC<Props> = ({ plan, userData, nutrition, onFinishWeek })
         ))}
       </div>
 
-      <div key={activeDayIndex} className="animate-fade-in space-y-3">
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-          <div className="bg-emerald-600 p-3 md:p-4 text-white flex justify-between items-center">
-            <h2 className="text-base md:text-lg font-black">{currentDay.day}</h2>
+      {/* CONTENIDO DEL DÍA SELECCIONADO */}
+      <div key={activeDayIndex} className="animate-fade-in space-y-6">
+        <div className="bg-white rounded-[2rem] shadow-xl shadow-slate-200/40 border border-slate-50 overflow-hidden">
+          <div className="bg-emerald-600 p-6 md:p-8 text-white flex justify-between items-center">
+            <div className="space-y-1">
+              <span className="text-[10px] font-black uppercase tracking-widest text-emerald-100 opacity-80">Menú del Día</span>
+              <h2 className="text-2xl md:text-3xl font-black">{currentDay.day}</h2>
+            </div>
             <div className="text-right">
-              <span className="bg-white/20 px-2 py-0.5 rounded text-[10px] font-black border border-white/20">{currentDay.totalCalories} kcal</span>
+              <span className="bg-white/20 backdrop-blur-md px-4 py-2 rounded-xl text-sm md:text-lg font-black border border-white/20 inline-block">{currentDay.totalCalories} kcal</span>
+              <p className="text-[10px] font-bold text-emerald-100 mt-2 uppercase tracking-widest">Agua: {currentDay.waterGoal}</p>
             </div>
           </div>
           
-          <div className="p-4 md:p-6 space-y-6">
+          <div className="p-6 md:p-10 space-y-10">
             {currentDay.meals.map((meal, mIdx) => (
-              <div key={mIdx} className="meal-section border-b border-slate-50 last:border-0 pb-4 last:pb-0">
-                <div className="flex justify-between items-start mb-2">
+              <div key={mIdx} className="meal-section border-b border-slate-50 last:border-0 pb-10 last:pb-0">
+                <div className="flex flex-col md:flex-row justify-between items-start gap-4 mb-6">
                   <div>
-                    <span className="bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-wider mr-2">{meal.type}</span>
-                    <h3 className="text-sm md:text-base font-bold text-slate-800 inline-block">{meal.name}</h3>
+                    <div className="flex items-center gap-3 mb-2">
+                      <span className="bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-lg text-[10px] md:text-xs font-black uppercase tracking-wider">{meal.type}</span>
+                      <span className="text-slate-400 font-bold text-xs">{meal.time}</span>
+                    </div>
+                    <h3 className="text-xl md:text-2xl font-bold text-slate-800 leading-tight">{meal.name}</h3>
                   </div>
-                  <span className="text-slate-400 font-bold text-[10px]">{meal.calories} kcal</span>
+                  <span className="text-slate-400 font-black text-sm md:text-base">{meal.calories} kcal</span>
                 </div>
-                <div className="grid md:grid-cols-3 gap-3">
-                  <div className="bg-slate-50 p-3 rounded-lg border border-slate-100">
-                    <h4 className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1">Ingredientes</h4>
-                    <ul className="text-[10px] text-slate-600 leading-tight">
-                      {meal.ingredients.map((ing, i) => <li key={i}>• {ing}</li>)}
+
+                <div className="grid md:grid-cols-3 gap-6 md:gap-10">
+                  <div className="bg-slate-50 p-5 rounded-2xl border border-slate-100">
+                    <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Ingredientes</h4>
+                    <ul className="text-xs md:text-sm text-slate-600 space-y-2">
+                      {meal.ingredients.map((ing, i) => <li key={i} className="flex gap-2"><span>•</span> {ing}</li>)}
                     </ul>
                   </div>
                   <div className="md:col-span-2">
-                    <h4 className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1">Instrucciones</h4>
-                    <div className="grid gap-1.5">
+                    <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Instrucciones</h4>
+                    <div className="grid gap-4">
                       {meal.instructions.map((ins, i) => (
-                        <div key={i} className="flex gap-2 text-[10px] text-slate-600 leading-relaxed">
-                          <span className="font-bold text-emerald-600">{i+1}.</span>
-                          <p>{ins}</p>
+                        <div key={i} className="flex gap-4">
+                          <span className="w-6 h-6 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center font-black text-xs shrink-0">{i+1}</span>
+                          <p className="text-xs md:text-sm text-slate-600 leading-relaxed">{ins}</p>
                         </div>
                       ))}
                     </div>
@@ -170,10 +182,12 @@ const Dashboard: React.FC<Props> = ({ plan, userData, nutrition, onFinishWeek })
 };
 
 const StatCard: React.FC<any> = ({ label, value, sub, color }) => (
-  <div className="bg-white p-3 rounded-xl border border-slate-100 shadow-sm">
-    <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest">{label}</p>
-    <h4 className={`text-sm font-black text-${color}-600 leading-tight`}>{value}</h4>
-    <p className="text-[7px] text-slate-400 italic">{sub}</p>
+  <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between">
+    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{label}</p>
+    <div>
+      <h4 className={`text-lg md:text-xl font-black text-${color}-600 leading-tight`}>{value}</h4>
+      <p className="text-[10px] text-slate-400 font-bold italic mt-0.5">{sub}</p>
+    </div>
   </div>
 );
 
