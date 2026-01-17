@@ -1,3 +1,63 @@
+/**
+ * Limpia y valida una cadena de texto para intentar convertirla en un objeto JSON válido.
+ */
+function parseAndRepairJSON(text) {
+  if (!text) return null;
+  
+  // 1. Quitar fences de markdown
+  let cleaned = text.replace(/```json\n?|```/g, "").trim();
+  
+  // 2. Extraer solo el bloque del objeto (del primer { al último })
+  const start = cleaned.indexOf('{');
+  const end = cleaned.lastIndexOf('}');
+  
+  if (start === -1 || end === -1) return null;
+  cleaned = cleaned.substring(start, end + 1);
+  
+  // 3. Normalizar comillas y limpiar comas colgantes
+  cleaned = cleaned
+    .replace(/[\u201C\u201D]/g, '"') // Comillas inteligentes/tipográficas
+    .replace(/,\s*([}\]])/g, '$1'); // Comas antes de cerrar llaves o corchetes
+    
+  try {
+    return JSON.parse(cleaned);
+  } catch (e) {
+    return null;
+  }
+}
+
+/**
+ * Realiza una llamada de emergencia a Gemini para intentar reparar un JSON roto.
+ */
+async function callRepairIA(brokenText, apiKey) {
+  const payload = {
+    contents: [{ 
+      parts: [{ 
+        text: `Corrige y devuelve SOLO JSON válido (sin texto extra). Repara este contenido para que sea JSON estricto:\n\n${brokenText}` 
+      }] 
+    }],
+    generationConfig: {
+      temperature: 0, // Mínima variabilidad para corrección técnica
+      maxOutputTokens: 2000,
+      responseMimeType: "application/json"
+    }
+  };
+
+  const response = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+      signal: AbortSignal.timeout(15000)
+    }
+  );
+
+  if (!response.ok) return null;
+  const data = await response.json();
+  return data.candidates?.[0]?.content?.parts?.[0]?.text || null;
+}
+
 export async function onRequestPost(context) {
   const { env } = context;
   const apiKey = env.API_KEY;
@@ -19,15 +79,14 @@ export async function onRequestPost(context) {
   const fastingMsg = fastingMap[userData.fastingType] || "";
   const seed = Math.floor(Math.random() * 9999);
 
-  // Prompt optimizado: instrucciones directas para reducir tokens de entrada
   const prompt = `Nutricionista: Dieta Mediterránea, 7 días (Lun-Dom), ${userData.diet}, ${targetCalories}kcal. ${fastingMsg} Variedad máxima (ID:${seed}).`;
 
   const payload = {
     contents: [{ parts: [{ text: prompt }] }],
     generationConfig: {
       responseMimeType: "application/json",
-      temperature: 0.1, // Mayor determinismo y ahorro de tokens en correcciones
-      maxOutputTokens: 2000, // Límite de seguridad para evitar consumo excesivo
+      temperature: 0.1,
+      maxOutputTokens: 2000,
       responseSchema: {
         type: "OBJECT",
         required: ["days"],
@@ -75,7 +134,7 @@ export async function onRequestPost(context) {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
-          signal: AbortSignal.timeout(30000) // Timeout de seguridad de 30s
+          signal: AbortSignal.timeout(30000)
         }
       );
 
@@ -83,17 +142,21 @@ export async function onRequestPost(context) {
         const data = await response.json();
         const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
         
-        // Limpieza de posibles bloques de código markdown (fences)
-        const cleanText = rawText.replace(/```json\n?|```/g, "").trim();
+        // 1. Intentar parseo normal con limpieza
+        let parsed = parseAndRepairJSON(rawText);
         
-        try {
-          // Validación del JSON antes de enviarlo al cliente
-          JSON.parse(cleanText); 
-          return new Response(cleanText, {
+        // 2. Si falla, intentar una reparación vía IA (solo una vez)
+        if (!parsed) {
+          console.warn("JSON fallido, intentando reparación con IA...");
+          const repairedText = await callRepairIA(rawText, apiKey);
+          parsed = parseAndRepairJSON(repairedText);
+        }
+        
+        if (parsed) {
+          return new Response(JSON.stringify(parsed), {
             headers: { "Content-Type": "application/json" },
           });
-        } catch (parseError) {
-          console.error("Malformed JSON from Gemini:", cleanText);
+        } else {
           return new Response(
             JSON.stringify({ error: "Respuesta IA malformada. Reintenta." }),
             { status: 502, headers: { "Content-Type": "application/json" } }
