@@ -26,23 +26,22 @@ const Dashboard: React.FC<Props> = ({ plan, userData, nutrition, onFinishWeek })
   const currentDay = plan.days[activeDayIndex];
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6 animate-fade-in text-slate-800">
+    <div className="max-w-4xl mx-auto space-y-6 animate-fade-in">
       {/* SECCIÓN VISIBLE (Dashboard interactivo) */}
       <div className="bg-white p-6 md:p-8 rounded-[2rem] border border-slate-200 shadow-sm flex flex-col md:flex-row justify-between items-center gap-6 no-print">
         <div className="text-center md:text-left">
-          <h2 className="text-2xl md:text-3xl font-black text-slate-900 leading-tight tracking-tight">Tu Plan Semanal</h2>
-          <p className="text-xs md:text-sm text-slate-600 font-bold italic mt-1 uppercase tracking-wider">Plan personalizado de 7 días.</p>
+          <h2 className="text-2xl md:text-3xl font-black text-slate-800 leading-tight tracking-tight">Tu Plan Semanal</h2>
+          <p className="text-xs md:text-sm text-slate-500 font-bold italic mt-1 uppercase tracking-wider">Plan personalizado de 7 días.</p>
         </div>
         <div className="flex gap-3 w-full md:w-auto">
           <button 
             onClick={handlePrint} 
-            className="flex-1 md:flex-none bg-white px-5 py-3.5 rounded-2xl border-2 border-slate-200 hover:border-emerald-500 hover:bg-emerald-50 transition-all flex items-center justify-center gap-3 group"
-            title="Imprimir plan"
+            className="flex-1 md:flex-none bg-white px-5 py-3.5 rounded-2xl border-2 border-slate-100 hover:border-emerald-500 hover:bg-emerald-50 transition-all flex items-center justify-center gap-3 group"
           >
-            <svg className="w-5 h-5 text-slate-700 group-hover:text-emerald-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5 text-slate-400 group-hover:text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
             </svg>
-            <span className="text-slate-700 group-hover:text-emerald-800 font-black text-sm uppercase tracking-tight">Imprimir Plan</span>
+            <span className="text-slate-500 group-hover:text-emerald-700 font-black text-sm uppercase tracking-tight">Imprimir</span>
           </button>
           <button 
             onClick={onFinishWeek}
@@ -68,7 +67,7 @@ const Dashboard: React.FC<Props> = ({ plan, userData, nutrition, onFinishWeek })
             className={`px-5 py-3 rounded-xl font-black text-xs md:text-sm transition-all whitespace-nowrap border-2 ${
               activeDayIndex === idx 
                 ? 'bg-emerald-600 border-emerald-600 text-white shadow-md' 
-                : 'bg-white border-slate-200 text-slate-500 hover:border-emerald-500 hover:text-emerald-700'
+                : 'bg-white border-slate-100 text-slate-400 hover:border-emerald-500 hover:text-emerald-600'
             }`}
           >
             {day.day}
@@ -84,9 +83,9 @@ const Dashboard: React.FC<Props> = ({ plan, userData, nutrition, onFinishWeek })
       <div id="print-area" className="hidden">
         <div className="p-8 space-y-8">
           <div className="border-b-4 border-emerald-600 pb-6 mb-8 text-center">
-            <h1 className="text-4xl font-black text-slate-900">SantiSystems: Adelgaza Saludable</h1>
-            <p className="text-emerald-700 font-black uppercase tracking-[0.2em] text-sm mt-3">Plan Nutricional de {userData.weight}kg</p>
-            <div className="flex justify-center gap-8 mt-5 text-slate-700 font-bold">
+            <h1 className="text-4xl font-black text-slate-800">SantiSystems: Adelgaza Saludable</h1>
+            <p className="text-emerald-600 font-black uppercase tracking-[0.2em] text-sm mt-3">Plan Nutricional de {userData.weight}kg</p>
+            <div className="flex justify-center gap-8 mt-5 text-slate-500 font-bold">
               <span>Objetivo: {nutrition.target} kcal</span>
               <span>Dieta: {userData.diet}</span>
               <span>Régimen: {getFastingLabel()}</span>
@@ -99,7 +98,7 @@ const Dashboard: React.FC<Props> = ({ plan, userData, nutrition, onFinishWeek })
             </div>
           ))}
           
-          <div className="mt-12 pt-8 border-t border-slate-300 text-center text-slate-600 text-xs italic font-bold">
+          <div className="mt-12 pt-8 border-t border-slate-200 text-center text-slate-400 text-xs italic font-bold">
             Plan generado por Santisystems. 
             IMPORTANTE: Este plan es orientativo basado en criterios AESAN. Consulta con un profesional médico para seguimiento clínico.
           </div>
@@ -110,7 +109,7 @@ const Dashboard: React.FC<Props> = ({ plan, userData, nutrition, onFinishWeek })
 };
 
 const DayView: React.FC<{ day: any, isPrintMode?: boolean }> = ({ day, isPrintMode }) => (
-  <div className={`bg-white rounded-[2rem] shadow-xl shadow-slate-200/50 border-2 border-slate-100 overflow-hidden ${isPrintMode ? 'shadow-none border-slate-200' : ''}`}>
+  <div className={`bg-white rounded-[2rem] shadow-xl shadow-slate-200/50 border border-slate-50 overflow-hidden ${isPrintMode ? 'shadow-none border-slate-100' : ''}`}>
     <div className="bg-emerald-600 p-6 md:p-8 text-white flex justify-between items-center">
       <div className="space-y-1">
         <span className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-100">Plan Diario Nutricional</span>
@@ -128,28 +127,28 @@ const DayView: React.FC<{ day: any, isPrintMode?: boolean }> = ({ day, isPrintMo
           <div className="flex justify-between items-start gap-4 mb-5">
             <div>
               <div className="flex items-center gap-3 mb-2">
-                <span className="bg-emerald-100 text-emerald-800 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest">{meal.type}</span>
-                <span className="text-slate-600 font-black text-xs uppercase">{meal.time}</span>
+                <span className="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest">{meal.type}</span>
+                <span className="text-slate-400 font-black text-xs uppercase">{meal.time}</span>
               </div>
-              <h3 className="text-xl md:text-2xl font-black text-slate-900 leading-tight">{meal.name}</h3>
+              <h3 className="text-xl md:text-2xl font-black text-slate-800 leading-tight">{meal.name}</h3>
             </div>
-            <span className="text-slate-900 font-black text-sm whitespace-nowrap">{meal.calories} kcal</span>
+            <span className="text-slate-400 font-black text-sm whitespace-nowrap">{meal.calories} kcal</span>
           </div>
 
           <div className="grid md:grid-cols-3 gap-6">
-            <div className="bg-slate-50 p-5 rounded-2xl border-2 border-slate-100">
-              <h4 className="text-[11px] font-black text-slate-500 uppercase tracking-widest mb-4 border-b border-slate-200 pb-2">Ingredientes</h4>
-              <ul className="text-xs md:text-sm text-slate-800 space-y-2 font-semibold">
-                {meal.ingredients.map((ing: string, i: number) => <li key={i} className="flex gap-2"><span className="text-emerald-600">•</span> {ing}</li>)}
+            <div className="bg-slate-50 p-5 rounded-2xl border border-slate-100">
+              <h4 className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4 border-b border-slate-200 pb-2">Ingredientes</h4>
+              <ul className="text-xs md:text-sm text-slate-600 space-y-2 font-medium">
+                {meal.ingredients.map((ing: string, i: number) => <li key={i} className="flex gap-2"><span className="text-emerald-500">•</span> {ing}</li>)}
               </ul>
             </div>
             <div className="md:col-span-2">
-              <h4 className="text-[11px] font-black text-slate-500 uppercase tracking-widest mb-4 border-b border-slate-100 pb-2">Instrucciones de Cocina</h4>
+              <h4 className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4 border-b border-slate-50 pb-2">Instrucciones de Cocina</h4>
               <div className="space-y-3">
                 {meal.instructions.map((ins: string, i: number) => (
                   <div key={i} className="flex gap-4">
-                    <span className="bg-emerald-50 text-emerald-700 w-6 h-6 rounded-full flex items-center justify-center font-black text-[10px] shrink-0 border border-emerald-100">{i+1}</span>
-                    <p className="text-xs md:text-sm text-slate-700 leading-relaxed font-bold">{ins}</p>
+                    <span className="bg-emerald-50 text-emerald-600 w-6 h-6 rounded-full flex items-center justify-center font-black text-[10px] shrink-0 border border-emerald-100">{i+1}</span>
+                    <p className="text-xs md:text-sm text-slate-600 leading-relaxed font-medium">{ins}</p>
                   </div>
                 ))}
               </div>
@@ -162,11 +161,11 @@ const DayView: React.FC<{ day: any, isPrintMode?: boolean }> = ({ day, isPrintMo
 );
 
 const StatCard: React.FC<any> = ({ label, value, sub, color }) => (
-  <div className="bg-white p-5 rounded-2xl border-2 border-slate-100 shadow-sm flex flex-col justify-between">
-    <p className="text-[11px] font-black text-slate-500 uppercase tracking-widest mb-2">{label}</p>
+  <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between">
+    <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2">{label}</p>
     <div>
-      <h4 className={`text-xl md:text-2xl font-black text-${color}-700 leading-tight`}>{value}</h4>
-      <p className="text-[10px] text-slate-600 font-black italic mt-1 uppercase tracking-wider">{sub}</p>
+      <h4 className={`text-xl md:text-2xl font-black text-${color}-600 leading-tight`}>{value}</h4>
+      <p className="text-[10px] text-slate-400 font-black italic mt-1 uppercase tracking-wider">{sub}</p>
     </div>
   </div>
 );

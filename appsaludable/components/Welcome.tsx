@@ -8,7 +8,7 @@ interface Props {
 
 const Welcome: React.FC<Props> = ({ onStart, onViewHistory, hasHistory }) => {
   return (
-    <div className="relative overflow-hidden text-slate-800">
+    <div className="relative overflow-hidden">
       {/* Background Decor */}
       <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/3 w-96 h-96 bg-emerald-100 rounded-full blur-3xl opacity-30"></div>
       <div className="absolute bottom-0 left-0 translate-y-1/2 -translate-x-1/3 w-64 h-64 bg-blue-100 rounded-full blur-3xl opacity-30"></div>
@@ -23,11 +23,11 @@ const Welcome: React.FC<Props> = ({ onStart, onViewHistory, hasHistory }) => {
             Nutricionista Digital SantiSystems
           </div>
           
-          <h1 className="text-5xl md:text-7xl font-black text-slate-900 leading-[1.05] mb-8 tracking-tighter">
+          <h1 className="text-5xl md:text-7xl font-black text-slate-800 leading-[1.05] mb-8 tracking-tighter">
             Nutre tu mejor versión: <span className="text-emerald-600">Planes reales</span> para una vida plena.
           </h1>
           
-          <p className="text-lg md:text-xl text-slate-700 leading-relaxed mb-10 max-w-2xl mx-auto font-bold italic">
+          <p className="text-lg md:text-xl text-slate-500 leading-relaxed mb-10 max-w-2xl mx-auto font-bold italic">
             Descubre el equilibrio perfecto con menús diseñados exclusivamente por SantiSystems para tu ritmo de vida y objetivos. Saludable y real.
           </p>
 
@@ -42,14 +42,14 @@ const Welcome: React.FC<Props> = ({ onStart, onViewHistory, hasHistory }) => {
             {hasHistory && (
               <button 
                 onClick={onViewHistory}
-                className="w-full sm:w-auto px-10 py-5 bg-white text-slate-800 font-black rounded-2xl shadow-sm border-2 border-slate-200 hover:border-emerald-500 hover:text-emerald-700 transition-all uppercase tracking-wide text-sm md:text-base"
+                className="w-full sm:w-auto px-10 py-5 bg-white text-slate-600 font-black rounded-2xl shadow-sm border-2 border-slate-100 hover:border-emerald-500 hover:text-emerald-600 transition-all uppercase tracking-wide text-sm md:text-base"
               >
                 Ver planes anteriores
               </button>
             )}
           </div>
           
-          <div className="mt-12 flex items-center justify-center gap-5 text-slate-800 text-xs font-black uppercase tracking-widest">
+          <div className="mt-12 flex items-center justify-center gap-5 text-slate-400 text-xs font-black uppercase tracking-widest">
             <div className="flex -space-x-3">
               {[1,2,3,4].map(i => (
                 <div key={i} className="w-10 h-10 rounded-full border-2 border-white bg-slate-200 overflow-hidden shadow-sm">
@@ -84,10 +84,10 @@ const Welcome: React.FC<Props> = ({ onStart, onViewHistory, hasHistory }) => {
 };
 
 const FeatureCard = ({ icon, title, desc }: any) => (
-  <div className="bg-white p-8 rounded-[2rem] border-2 border-slate-100 shadow-sm hover:shadow-xl hover:border-emerald-100 transition-all group">
+  <div className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-xl hover:border-emerald-100 transition-all group">
     <div className="text-4xl mb-5 group-hover:scale-110 transition-transform inline-block">{icon}</div>
-    <h3 className="text-lg font-black text-slate-900 mb-2 uppercase tracking-tight">{title}</h3>
-    <p className="text-sm text-slate-700 leading-relaxed font-bold">{desc}</p>
+    <h3 className="text-lg font-black text-slate-800 mb-2 uppercase tracking-tight">{title}</h3>
+    <p className="text-sm text-slate-500 leading-relaxed font-bold">{desc}</p>
   </div>
 );
 
