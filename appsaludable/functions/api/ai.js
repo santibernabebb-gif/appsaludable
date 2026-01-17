@@ -81,9 +81,24 @@ export async function onRequestPost(context) {
 
       if (response.ok) {
         const data = await response.json();
-        return new Response(data.candidates?.[0]?.content?.parts?.[0]?.text, {
-          headers: { "Content-Type": "application/json" },
-        });
+        const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+        
+        // Limpieza de posibles bloques de código markdown (fences)
+        const cleanText = rawText.replace(/```json\n?|```/g, "").trim();
+        
+        try {
+          // Validación del JSON antes de enviarlo al cliente
+          JSON.parse(cleanText); 
+          return new Response(cleanText, {
+            headers: { "Content-Type": "application/json" },
+          });
+        } catch (parseError) {
+          console.error("Malformed JSON from Gemini:", cleanText);
+          return new Response(
+            JSON.stringify({ error: "Respuesta IA malformada. Reintenta." }),
+            { status: 502, headers: { "Content-Type": "application/json" } }
+          );
+        }
       }
 
       if (response.status === 503 || response.status === 429) {
