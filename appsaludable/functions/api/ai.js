@@ -38,7 +38,7 @@ async function callRepairIA(brokenText, apiKey) {
     }],
     generationConfig: {
       temperature: 0, // Mínima variabilidad para corrección técnica
-      maxOutputTokens: 2000,
+      maxOutputTokens: 4000,
       responseMimeType: "application/json"
     }
   };
@@ -86,7 +86,7 @@ export async function onRequestPost(context) {
     generationConfig: {
       responseMimeType: "application/json",
       temperature: 0.1,
-      maxOutputTokens: 2000,
+      maxOutputTokens: 4000,
       responseSchema: {
         type: "OBJECT",
         required: ["days"],
