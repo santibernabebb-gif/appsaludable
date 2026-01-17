@@ -1,4 +1,3 @@
-
 export async function onRequestPost(context) {
   const { env } = context;
   const apiKey = env.API_KEY;
@@ -28,7 +27,7 @@ export async function onRequestPost(context) {
     generationConfig: {
       responseMimeType: "application/json",
       temperature: 0.1, // Mayor determinismo y ahorro de tokens en correcciones
-      maxOutputTokens: 4000, // Límite de seguridad para evitar consumo excesivo
+      maxOutputTokens: 2000, // Límite de seguridad para evitar consumo excesivo
       responseSchema: {
         type: "OBJECT",
         required: ["days"],
