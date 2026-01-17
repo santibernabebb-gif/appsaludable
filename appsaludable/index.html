@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
   <head>
@@ -25,9 +26,6 @@
         -webkit-tap-highlight-color: transparent;
         user-select: none;
       }
-      .safe-area-top {
-        padding-top: var(--safe-area-inset-top);
-      }
       .animate-fade-in {
         animation: fadeIn 0.4s ease-out;
       }
@@ -35,9 +33,42 @@
         from { opacity: 0; transform: translateY(8px); }
         to { opacity: 1; transform: translateY(0); }
       }
-      /* Ocultar scrollbars para sensación nativa */
       ::-webkit-scrollbar {
         display: none;
+      }
+
+      /* REGLAS DE IMPRESIÓN OBLIGATORIAS */
+      @media print {
+        body * { visibility: hidden !important; }
+        #print-area, #print-area * { visibility: visible !important; }
+        #print-area { 
+          position: absolute; 
+          left: 0; 
+          top: 0; 
+          width: 100%; 
+          display: block !important;
+        }
+        .no-print { display: none !important; }
+        * { overflow: visible !important; transform: none !important; }
+        html, body {
+          background: white !important;
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+        }
+        @page { margin: 15mm; }
+        
+        /* Evitar saltos de página a mitad de una comida */
+        .meal-section {
+          page-break-inside: avoid;
+          break-inside: avoid;
+          margin-bottom: 2rem;
+        }
+        .day-header {
+          page-break-before: always;
+        }
+        .day-header:first-child {
+          page-break-before: auto;
+        }
       }
     </style>
   <script type="importmap">
@@ -45,15 +76,13 @@
   "imports": {
     "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
     "react/": "https://esm.sh/react@^19.2.3/",
-    "react": "https://esm.sh/react@^19.2.3",
-    "@google/genai": "https://esm.sh/@google/genai@^1.37.0",
-    "jspdf": "https://esm.sh/jspdf@^2.5.1"
+    "react": "https://esm.sh/react@^19.2.3"
   }
 }
 </script>
 <link rel="stylesheet" href="/index.css">
 </head>
-  <body className="overscroll-none">
+  <body class="overscroll-none">
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>
   </body>
