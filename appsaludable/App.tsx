@@ -75,6 +75,14 @@ const App: React.FC = () => {
     }
   };
 
+  const handleDeleteHistoryEntry = (id: string) => {
+    if (confirm("¿Seguro que quieres borrar este plan del historial?")) {
+      const updatedHistory = history.filter(entry => entry.id !== id);
+      setHistory(updatedHistory);
+      localStorage.setItem('santi_history', JSON.stringify(updatedHistory));
+    }
+  };
+
   const handleResetCurrent = () => {
     if (confirm("¿Nueva búsqueda de menú?")) {
       setPlan(null);
@@ -84,23 +92,23 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 select-none">
+    <div className="min-h-screen flex flex-col bg-slate-50 select-none text-slate-800">
       {/* Header optimizado y responsivo */}
       <header className={`px-5 pt-[env(safe-area-inset-top)] pb-3 md:py-6 flex justify-between items-center z-50 transition-all ${step === 'dashboard' || step === 'history' ? 'bg-white border-b sticky top-0 shadow-sm' : 'bg-transparent'}`}>
         <div className="flex items-center gap-3 pt-2 cursor-pointer" onClick={() => setStep('welcome')}>
           <div className="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center text-white font-black text-xl shadow-lg shadow-emerald-200">S</div>
           <div className="flex flex-col">
             <span className="font-black text-slate-900 leading-tight text-base">Adelgaza Saludable</span>
-            <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest">SantiSystems</span>
+            <span className="text-[10px] font-bold text-emerald-700 uppercase tracking-widest">SantiSystems</span>
           </div>
         </div>
         
         <div className="flex items-center gap-2 pt-2">
           {history.length > 0 && (
-            <button onClick={() => setStep('history')} className="px-4 py-2 text-xs font-bold text-slate-600 bg-slate-100 rounded-xl hover:bg-slate-200 transition-colors">Historial</button>
+            <button onClick={() => setStep('history')} className="px-4 py-2 text-xs font-bold text-slate-700 bg-slate-100 rounded-xl hover:bg-slate-200 transition-colors border border-slate-200">Historial</button>
           )}
           {step === 'dashboard' && (
-            <button onClick={handleResetCurrent} className="p-2.5 text-orange-500 bg-orange-50 rounded-full hover:bg-orange-100 transition-colors">
+            <button onClick={handleResetCurrent} className="p-2.5 text-orange-600 bg-orange-50 rounded-full hover:bg-orange-100 transition-colors border border-orange-100">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
             </button>
           )}
@@ -110,9 +118,9 @@ const App: React.FC = () => {
       <main className="flex-grow flex flex-col items-center w-full">
         {error && (
           <div className="w-full max-w-5xl px-4 mt-4">
-            <div className="bg-red-50 text-red-700 p-4 rounded-2xl flex items-center gap-3 border border-red-100 animate-fade-in">
+            <div className="bg-red-50 text-red-800 p-4 rounded-2xl flex items-center gap-3 border border-red-200 animate-fade-in shadow-sm">
               <ICONS.Alert />
-              <p className="text-sm font-medium">{error}</p>
+              <p className="text-sm font-bold">{error}</p>
             </div>
           </div>
         )}
@@ -121,7 +129,7 @@ const App: React.FC = () => {
           {step === 'welcome' && <Welcome onStart={() => setStep('onboarding')} onViewHistory={() => setStep('history')} hasHistory={history.length > 0} />}
           {step === 'onboarding' && <Onboarding onComplete={handleOnboardingComplete} onCancel={() => setStep('welcome')} />}
           {step === 'loading' && <LoadingState />}
-          {step === 'history' && <History entries={history} onSelect={(e) => { setPlan(e.plan); setUserData(e.userData); setNutrition(calculateNutrition(e.userData)); setStep('dashboard'); }} onBack={() => setStep(plan ? 'dashboard' : 'welcome')} />}
+          {step === 'history' && <History entries={history} onSelect={(e) => { setPlan(e.plan); setUserData(e.userData); setNutrition(calculateNutrition(e.userData)); setStep('dashboard'); }} onDeleteEntry={handleDeleteHistoryEntry} onBack={() => setStep(plan ? 'dashboard' : 'welcome')} />}
           {step === 'dashboard' && plan && userData && (
             <div className="py-6 px-4 pb-[env(safe-area-inset-bottom)] w-full">
               <Dashboard plan={plan} userData={userData} nutrition={nutrition} onFinishWeek={handleFinishWeek} />
@@ -134,22 +142,22 @@ const App: React.FC = () => {
         <div className="max-w-5xl mx-auto px-6 text-center space-y-6">
           <div className="flex flex-wrap justify-center items-center gap-x-8 gap-y-4">
             <a href={HEALTH_LINKS.NAOS} target="_blank" rel="noopener noreferrer" className="group flex flex-col items-center">
-              <span className="text-xs text-slate-400 font-bold uppercase tracking-[0.2em] mb-1">Entidad Colaboradora</span>
-              <span className="text-sm text-slate-600 group-hover:text-emerald-600 font-black transition-colors">Estrategia NAOS</span>
+              <span className="text-xs text-slate-500 font-bold uppercase tracking-[0.2em] mb-1">Entidad Colaboradora</span>
+              <span className="text-sm text-slate-800 group-hover:text-emerald-700 font-black transition-colors">Estrategia NAOS</span>
             </a>
-            <div className="hidden sm:block w-px h-8 bg-slate-100"></div>
+            <div className="hidden sm:block w-px h-8 bg-slate-200"></div>
             <a href={HEALTH_LINKS.AESAN_RECOMMENDATIONS} target="_blank" rel="noopener noreferrer" className="group flex flex-col items-center">
-              <span className="text-xs text-slate-400 font-bold uppercase tracking-[0.2em] mb-1">Criterio Nutricional</span>
-              <span className="text-sm text-slate-600 group-hover:text-emerald-600 font-black transition-colors">AESAN</span>
+              <span className="text-xs text-slate-500 font-bold uppercase tracking-[0.2em] mb-1">Criterio Nutricional</span>
+              <span className="text-sm text-slate-800 group-hover:text-emerald-700 font-black transition-colors">AESAN</span>
             </a>
-            <div className="hidden sm:block w-px h-8 bg-slate-100"></div>
+            <div className="hidden sm:block w-px h-8 bg-slate-200"></div>
             <a href={HEALTH_LINKS.MINISTRY_HEALTH} target="_blank" rel="noopener noreferrer" className="group flex flex-col items-center">
-              <span className="text-xs text-slate-400 font-bold uppercase tracking-[0.2em] mb-1">Supervisión</span>
-              <span className="text-sm text-slate-600 group-hover:text-emerald-600 font-black transition-colors">Ministerio de Sanidad</span>
+              <span className="text-xs text-slate-500 font-bold uppercase tracking-[0.2em] mb-1">Supervisión</span>
+              <span className="text-sm text-slate-800 group-hover:text-emerald-700 font-black transition-colors">Ministerio de Sanidad</span>
             </a>
           </div>
-          <div className="w-16 h-1.5 bg-emerald-50 mx-auto rounded-full"></div>
-          <p className="text-xs text-slate-400 uppercase tracking-[0.3em] font-black">© 2026 Adelgaza Saludable · SantiSystems</p>
+          <div className="w-16 h-1.5 bg-emerald-100 mx-auto rounded-full"></div>
+          <p className="text-xs text-slate-500 uppercase tracking-[0.3em] font-black">© 2026 Adelgaza Saludable · SantiSystems</p>
         </div>
       </footer>
     </div>
@@ -160,10 +168,10 @@ const LoadingState: React.FC = () => (
   <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-6 w-full max-w-md">
     <div className="relative mb-8">
       <div className="w-20 h-20 border-4 border-emerald-100 border-t-emerald-600 rounded-full animate-spin shadow-sm"></div>
-      <div className="absolute inset-0 flex items-center justify-center text-emerald-600 font-black">S</div>
+      <div className="absolute inset-0 flex items-center justify-center text-emerald-700 font-black">S</div>
     </div>
-    <h2 className="text-2xl font-black text-slate-800 mb-3 italic">Creando tu menú...</h2>
-    <p className="text-sm text-slate-500 font-medium leading-relaxed">SantiSystems está procesando las mejores recetas mediterráneas basadas en criterios de AESAN personalizadas para ti.</p>
+    <h2 className="text-2xl font-black text-slate-900 mb-3 italic">Creando tu menú...</h2>
+    <p className="text-sm text-slate-600 font-bold leading-relaxed">SantiSystems está procesando las mejores recetas mediterráneas basadas en criterios de AESAN personalizadas para ti.</p>
   </div>
 );
 
