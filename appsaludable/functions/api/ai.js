@@ -5,27 +5,30 @@ export async function onRequestPost(context) {
 
   if (!apiKey) {
     return new Response(
-      JSON.stringify({ error: "Configuración incompleta: API_KEY no encontrada en el servidor." }),
+      JSON.stringify({ error: "API_KEY no configurada." }),
       { status: 500, headers: { "Content-Type": "application/json" } }
     );
   }
 
   const { userData, targetCalories } = await context.request.json();
 
-  let fastingInstruction = "";
-  if (userData.fastingType === '12-20') {
-    fastingInstruction = "IMPORTANTE: El usuario realiza AYUNO INTERMITENTE 16:8 (Ventana 12:00h a 20:00h).";
-  } else if (userData.fastingType === '9-17') {
-    fastingInstruction = "IMPORTANTE: El usuario realiza AYUNO INTERMITENTE 16:8 (Ventana 09:00h a 17:00h).";
-  }
+  const fastingMap = {
+    '12-20': "Ayuno 16:8 (Ventana 12h-20h).",
+    '9-17': "Ayuno 16:8 (Ventana 09h-17h)."
+  };
 
-  const randomSeed = Math.floor(Math.random() * 1000000);
-  const prompt = `Actúa como Nutricionista Colegiado experto en Dieta Mediterránea. Genera un plan de 7 días (Lunes-Domingo) para ${userData.diet} de ${targetCalories} kcal. ${fastingInstruction} Varía los platos (Semilla: ${randomSeed}).`;
+  const fastingMsg = fastingMap[userData.fastingType] || "";
+  const seed = Math.floor(Math.random() * 9999);
+
+  // Prompt optimizado: instrucciones directas para reducir tokens de entrada
+  const prompt = `Nutricionista: Dieta Mediterránea, 7 días (Lun-Dom), ${userData.diet}, ${targetCalories}kcal. ${fastingMsg} Variedad máxima (ID:${seed}).`;
 
   const payload = {
     contents: [{ parts: [{ text: prompt }] }],
     generationConfig: {
       responseMimeType: "application/json",
+      temperature: 0.1, // Mayor determinismo y ahorro de tokens en correcciones
+      maxOutputTokens: 4000, // Límite de seguridad para evitar consumo excesivo
       responseSchema: {
         type: "OBJECT",
         required: ["days"],
@@ -62,7 +65,6 @@ export async function onRequestPost(context) {
     }
   };
 
-  // Implementación de Reintentos (Exponential Backoff)
   const MAX_RETRIES = 4;
   const INITIAL_DELAY = 1000;
 
@@ -74,39 +76,37 @@ export async function onRequestPost(context) {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
+          signal: AbortSignal.timeout(30000) // Timeout de seguridad de 30s
         }
       );
 
       if (response.ok) {
         const data = await response.json();
-        const textResponse = data.candidates?.[0]?.content?.parts?.[0]?.text;
-        return new Response(textResponse, {
+        return new Response(data.candidates?.[0]?.content?.parts?.[0]?.text, {
           headers: { "Content-Type": "application/json" },
         });
       }
 
-      // Si es error de saturación o cuota, reintentamos
       if (response.status === 503 || response.status === 429) {
-        const delay = INITIAL_DELAY * Math.pow(2, i) + Math.random() * 500;
-        await new Promise((resolve) => setTimeout(resolve, delay));
+        const delay = INITIAL_DELAY * Math.pow(2, i) + Math.random() * 300;
+        await new Promise(r => setTimeout(r, delay));
         continue;
       }
 
-      // Otros errores (400, 401, etc) se devuelven directamente
-      const errorMsg = await response.text();
-      return new Response(
-        JSON.stringify({ error: `Error de la IA (${response.status}): ${errorMsg}` }),
-        { status: response.status, headers: { "Content-Type": "application/json" } }
-      );
+      const errorText = await response.text();
+      return new Response(JSON.stringify({ error: `IA Error ${response.status}` }), { 
+        status: response.status, 
+        headers: { "Content-Type": "application/json" } 
+      });
 
     } catch (e) {
-      if (i === MAX_RETRIES - 1) throw e;
-      await new Promise((resolve) => setTimeout(resolve, INITIAL_DELAY * Math.pow(2, i)));
+      if (i === MAX_RETRIES - 1) break;
+      await new Promise(r => setTimeout(r, INITIAL_DELAY * Math.pow(2, i)));
     }
   }
 
   return new Response(
-    JSON.stringify({ error: "La IA está saturada tras varios intentos. Por favor, inténtalo de nuevo en unos minutos." }),
+    JSON.stringify({ error: "Servicio temporalmente saturado. Reintenta en 1 min." }),
     { status: 503, headers: { "Content-Type": "application/json" } }
   );
 }
