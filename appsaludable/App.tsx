@@ -8,6 +8,9 @@ import Welcome from './components/Welcome';
 import Onboarding from './components/Onboarding';
 import History from './components/History';
 
+// Versión actual de la aplicación
+const APP_VERSION = '1.0.1';
+
 const App: React.FC = () => {
   const [step, setStep] = useState<'welcome' | 'onboarding' | 'loading' | 'dashboard' | 'history'>('welcome');
   const [userData, setUserData] = useState<UserData | null>(null);
@@ -17,11 +20,27 @@ const App: React.FC = () => {
   const [nutrition, setNutrition] = useState<any>(null);
 
   useEffect(() => {
+    // Control de versión para limpieza de estado antiguo
+    const savedVersion = localStorage.getItem('santi_app_version');
+    if (savedVersion !== APP_VERSION) {
+      localStorage.removeItem('santi_active_plan');
+      localStorage.removeItem('santi_user');
+      localStorage.removeItem('santi_history');
+      localStorage.setItem('santi_app_version', APP_VERSION);
+      // Tras limpiar, el resto de getItem devolverán null y la app arrancará limpia
+    }
+
     const savedPlan = localStorage.getItem('santi_active_plan');
     const savedUser = localStorage.getItem('santi_user');
     const savedHistory = localStorage.getItem('santi_history');
 
-    if (savedHistory) setHistory(JSON.parse(savedHistory));
+    if (savedHistory) {
+      try {
+        setHistory(JSON.parse(savedHistory));
+      } catch (e) {
+        console.error("Error parsing history", e);
+      }
+    }
     
     if (savedPlan && savedUser) {
       try {
