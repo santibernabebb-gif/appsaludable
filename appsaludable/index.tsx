@@ -12,11 +12,13 @@ root.render(
   </React.StrictMode>
 );
 
-// Registro del Service Worker para soporte PWA
+// Limpieza de Service Workers previos para evitar problemas de caché (PWA Clean-up)
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/service-worker.js')
-      .then(reg => console.log('SW registrado correctamente', reg))
-      .catch(err => console.error('Error al registrar el SW', err));
-  });
+  navigator.serviceWorker.getRegistrations().then((registrations) => {
+    for (const registration of registrations) {
+      registration.unregister().then(() => {
+        console.log('SW desregistrado para garantizar carga limpia');
+      });
+    }
+  }).catch(err => console.error('Error al limpiar SW:', err));
 }
