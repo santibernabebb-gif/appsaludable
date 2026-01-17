@@ -8,9 +8,6 @@ import Welcome from './components/Welcome';
 import Onboarding from './components/Onboarding';
 import History from './components/History';
 
-// Versión actual de la aplicación
-const APP_VERSION = '1.0.1';
-
 const App: React.FC = () => {
   const [step, setStep] = useState<'welcome' | 'onboarding' | 'loading' | 'dashboard' | 'history'>('welcome');
   const [userData, setUserData] = useState<UserData | null>(null);
@@ -20,16 +17,6 @@ const App: React.FC = () => {
   const [nutrition, setNutrition] = useState<any>(null);
 
   useEffect(() => {
-    // Control de versión para limpieza de estado antiguo
-    const savedVersion = localStorage.getItem('santi_app_version');
-    if (savedVersion !== APP_VERSION) {
-      localStorage.removeItem('santi_active_plan');
-      localStorage.removeItem('santi_user');
-      localStorage.removeItem('santi_history');
-      localStorage.setItem('santi_app_version', APP_VERSION);
-      // Tras limpiar, el resto de getItem devolverán null y la app arrancará limpia
-    }
-
     const savedPlan = localStorage.getItem('santi_active_plan');
     const savedUser = localStorage.getItem('santi_user');
     const savedHistory = localStorage.getItem('santi_history');
@@ -104,7 +91,6 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 select-none">
-      {/* Header optimizado y responsivo */}
       <header className={`px-5 pt-[env(safe-area-inset-top)] pb-3 md:py-6 flex justify-between items-center z-50 transition-all ${step === 'dashboard' || step === 'history' ? 'bg-white border-b sticky top-0 shadow-sm' : 'bg-transparent'}`}>
         <div className="flex items-center gap-3 pt-2 cursor-pointer" onClick={() => setStep('welcome')}>
           <div className="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center text-white font-black text-xl shadow-lg shadow-emerald-200">S</div>
