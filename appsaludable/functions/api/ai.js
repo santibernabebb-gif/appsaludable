@@ -57,7 +57,8 @@ export async function onRequestPost(context) {
         contents: [{ parts: [{ text: prompt }] }],
         generationConfig: {
           responseMimeType: "application/json",
-          temperature: 0.65
+          temperature: 0.65,
+          maxOutputTokens: 3500
         }
       })
     });
