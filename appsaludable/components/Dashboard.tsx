@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { UserData, WeeklyPlan, DayPlan, Recipe } from '../types';
+import { calculateTDEE } from '../constants';
 
 interface Props {
   user: UserData;
@@ -15,6 +16,11 @@ const Dashboard: React.FC<Props> = ({ user, plan, onNewPlan, onViewHistory }) =>
   if (!plan) return null;
 
   const currentDayPlan = plan.days[selectedDay];
+
+  // Cálculos de calorías
+  const maintenance = calculateTDEE(user.gender, user.weight, user.height, user.age, user.activityLevel);
+  const target = plan.targetCalories;
+  const diff = target - maintenance;
 
   const handlePrint = () => {
     window.print();
@@ -109,9 +115,15 @@ const Dashboard: React.FC<Props> = ({ user, plan, onNewPlan, onViewHistory }) =>
             </div>
           </div>
           <div className="flex flex-wrap gap-8">
-            <div className="text-center">
-              <p className="text-xs text-gray-400 uppercase tracking-widest font-bold">Meta Diaria</p>
-              <p className="text-2xl font-black text-gray-900">{plan.targetCalories} <span className="text-sm font-normal text-gray-500">kcal</span></p>
+            <div className="text-right border-l pl-6 border-gray-50">
+              <p className="text-[10px] text-gray-400 uppercase tracking-widest font-bold mb-1">Análisis Calórico</p>
+              <div className="space-y-0.5">
+                <p className="text-xs text-gray-500 font-medium">Mantenimiento: <span className="text-gray-900 font-bold">{maintenance} kcal</span></p>
+                <p className="text-lg font-black text-primary-600 leading-none py-0.5">Objetivo: {target} kcal</p>
+                <p className={`text-xs font-bold uppercase tracking-tight ${diff < 0 ? 'text-red-500' : diff > 0 ? 'text-green-600' : 'text-blue-500'}`}>
+                  {diff < 0 ? `Déficit: ${Math.abs(diff)}` : diff > 0 ? `Superávit: ${Math.abs(diff)}` : 'Mantenimiento'} kcal
+                </p>
+              </div>
             </div>
           </div>
         </div>
@@ -123,8 +135,8 @@ const Dashboard: React.FC<Props> = ({ user, plan, onNewPlan, onViewHistory }) =>
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <p className="text-primary-800 text-sm md:text-base font-medium leading-relaxed">
-              Según tus datos, tu cuerpo necesita aproximadamente <span className="font-bold text-primary-900">{plan.targetCalories} kcal</span> al día. 
-              Este plan está diseñado para ajustarse a ese objetivo.
+              Según tus datos, tu cuerpo necesita aproximadamente <span className="font-bold text-primary-900">{maintenance} kcal</span> al día para mantener su peso actual. 
+              Este plan está diseñado para ajustarse a tu objetivo de <span className="font-bold text-primary-900">{target} kcal</span>.
             </p>
           </div>
         </div>
