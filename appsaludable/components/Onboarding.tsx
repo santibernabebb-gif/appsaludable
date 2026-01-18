@@ -9,17 +9,12 @@ interface Props {
   onCancel: () => void;
 }
 
-interface ValidationErrors {
-  age?: string;
-  weight?: string;
-  height?: string;
-}
-
 const Onboarding: React.FC<Props> = ({ onComplete, onCancel }) => {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [errors, setErrors] = useState<ValidationErrors>({});
+  const [fieldErrors, setFieldErrors] = useState<any>({});
+  const [isBlocked, setIsBlocked] = useState(false);
   
   const [formData, setFormData] = useState<any>({
     name: '',
@@ -34,59 +29,64 @@ const Onboarding: React.FC<Props> = ({ onComplete, onCancel }) => {
     allergies: ''
   });
 
-  const validateField = (name: string, value: any) => {
-    let errorMsg = '';
-    const num = Number(value);
-    
-    if (name === 'age') {
-      if (isNaN(num) || num <= 0 || num > 115) errorMsg = 'Edad no válida';
-    } else if (name === 'weight') {
-      if (isNaN(num) || num < 25 || num > 350) errorMsg = 'Peso fuera de rango';
-    } else if (name === 'height') {
-      if (isNaN(num) || num < 60 || num > 250) errorMsg = 'Altura no válida';
-    }
-    
-    setErrors(prev => ({
-      ...prev,
-      [name]: errorMsg || undefined
-    }));
-    return !errorMsg;
-  };
+  const [safetyCheck, setSafetyCheck] = useState({
+    pregnancy: false,
+    under18: false,
+    diabetesHeart: false,
+    eatingDisorders: false
+  });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
+    setFormData((prev: any) => ({ 
+      ...prev, 
+      [name]: value 
     }));
-
-    if (name === 'age' || name === 'weight' || name === 'height') {
-      if (value !== '') {
-        validateField(name, value);
-      }
+    if (fieldErrors[name]) {
+      setFieldErrors((prev: any) => ({ ...prev, [name]: undefined }));
     }
   };
 
   const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
     const { name } = e.target;
     if (name === 'age' || name === 'weight' || name === 'height') {
-      setFormData(prev => ({ ...prev, [name]: '' }));
-      setErrors(prev => ({ ...prev, [name]: undefined }));
+      setFormData((prev: any) => ({ ...prev, [name]: '' }));
+      setFieldErrors((prev: any) => ({ ...prev, [name]: undefined }));
     }
   };
 
   const nextStep = () => {
     if (step === 1) {
-      const isAgeOk = validateField('age', formData.age);
-      const isWeightOk = validateField('weight', formData.weight);
-      const isHeightOk = validateField('height', formData.height);
-      if (isAgeOk && isWeightOk && isHeightOk && formData.name) {
-        setStep(2);
+      // Paso 1 ahora es Validación Médica
+      const hasMedicalCondition = Object.values(safetyCheck).some(val => val === true);
+      if (hasMedicalCondition) {
+        setIsBlocked(true);
+        return;
       }
     } else if (step === 2) {
-      setStep(3);
+      // Paso 2 ahora es Datos Físicos
+      const age = Number(formData.age);
+      const weight = Number(formData.weight);
+      const height = Number(formData.height);
+      const errors: any = {};
+
+      if (!formData.age || isNaN(age) || age < 14 || age > 100) {
+        errors.age = "Edad no válida (14-100)";
+      }
+      if (!formData.weight || isNaN(weight) || weight < 35 || weight > 250) {
+        errors.weight = "Peso no válido (35-250)";
+      }
+      if (!formData.height || isNaN(height) || height < 120 || height > 230) {
+        errors.height = "Altura no válida (120-230)";
+      }
+
+      if (Object.keys(errors).length > 0) {
+        setFieldErrors(errors);
+        return;
+      }
+      setFieldErrors({});
     }
+    setStep(s => s + 1);
   };
 
   const prevStep = () => {
@@ -100,9 +100,9 @@ const Onboarding: React.FC<Props> = ({ onComplete, onCancel }) => {
     setError(null);
 
     try {
-      // Convertir a números finales para el cálculo
       const finalData: UserData = {
         ...formData,
+        name: formData.name.trim() || 'Usuario',
         age: Number(formData.age),
         weight: Number(formData.weight),
         height: Number(formData.height)
@@ -142,33 +142,6 @@ const Onboarding: React.FC<Props> = ({ onComplete, onCancel }) => {
     </div>
   );
 
-  const InputField = ({ label, name, type, value, placeholder = "" }: any) => {
-    const hasError = !!errors[name as keyof ValidationErrors];
-    return (
-      <div className="flex flex-col">
-        <label className="block text-sm font-semibold text-gray-700 mb-2">{label}</label>
-        <input
-          type={type}
-          name={name}
-          value={value}
-          onChange={handleChange}
-          onFocus={handleFocus}
-          placeholder={placeholder}
-          autoComplete="off"
-          className={`w-full px-4 py-3 rounded-xl border outline-none transition-all text-lg ${
-            hasError 
-              ? 'border-red-500 ring-4 ring-red-100 bg-red-50 text-red-900' 
-              : 'border-gray-200 focus:ring-4 focus:ring-primary-100 focus:border-primary-500'
-          }`}
-        />
-        {hasError && <p className="mt-1.5 text-xs font-bold text-red-600 flex items-center">
-          <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" /></svg>
-          {errors[name as keyof ValidationErrors]}
-        </p>}
-      </div>
-    );
-  };
-
   if (loading) {
     return (
       <div className="fixed inset-0 bg-white z-50 flex flex-col items-center justify-center p-6 text-center">
@@ -181,26 +154,54 @@ const Onboarding: React.FC<Props> = ({ onComplete, onCancel }) => {
     );
   }
 
-  const isStep1Disabled = !formData.name || !formData.age || !formData.weight || !formData.height || !!errors.age || !!errors.weight || !!errors.height;
+  if (isBlocked) {
+    return (
+      <div className="relative min-h-screen max-w-3xl mx-auto px-6 py-24 fade-in flex flex-col items-center justify-center text-center">
+        <Branding />
+        <div className="bg-white p-10 rounded-3xl shadow-xl border border-red-100 space-y-6">
+          <div className="w-20 h-20 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+          </div>
+          <h2 className="text-2xl font-black text-gray-900">Aviso de Seguridad</h2>
+          <p className="text-gray-600 leading-relaxed">
+            Por tu seguridad, esta aplicación no es adecuada para tu situación. 
+            <br />
+            <strong>Consulta con un profesional sanitario.</strong>
+          </p>
+          <button
+            onClick={() => {
+              setIsBlocked(false);
+              setStep(1); // Regresa a la primera página de inicio del onboarding
+            }}
+            className="w-full py-4 bg-gray-900 text-white font-bold rounded-2xl shadow-lg transition-all active:scale-[0.98]"
+          >
+            Volver atrás
+          </button>
+        </div>
+        <FooterAESAN />
+      </div>
+    );
+  }
 
   return (
     <div className="relative min-h-screen max-w-3xl mx-auto px-6 py-24 fade-in flex flex-col">
       <Branding />
       
       <button onClick={prevStep} className="mb-8 flex items-center text-primary-600 font-semibold hover:text-primary-700 w-fit transition-transform hover:-translate-x-1">
-        <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"></path></svg>
+        <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+        </svg>
         {step === 1 ? 'Volver' : 'Atrás'}
       </button>
 
-      <div className="mb-8 flex justify-between items-center px-2">
-        {[1, 2, 3].map(i => (
+      <div className="mb-10 flex justify-between items-center px-2">
+        {[1, 2, 3, 4, 5].map(i => (
           <div key={i} className={`h-2 flex-1 mx-1 rounded-full transition-all duration-500 ${step >= i ? 'bg-primary-500' : 'bg-gray-200'}`} />
         ))}
       </div>
 
       {error && (
-        <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-xl animate-bounce">
-          <p className="font-bold">Error</p>
+        <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-xl">
           <p>{error}</p>
         </div>
       )}
@@ -208,47 +209,145 @@ const Onboarding: React.FC<Props> = ({ onComplete, onCancel }) => {
       <div className="flex-1">
         {step === 1 && (
           <div className="space-y-8 bg-white p-8 rounded-3xl shadow-xl border border-gray-100 fade-in">
-            <h2 className="text-2xl font-black text-gray-900">Cuéntanos sobre ti</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="md:col-span-2">
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Nombre</label>
-                <input required type="text" name="name" value={formData.name} onChange={handleChange} className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-4 focus:ring-primary-100 focus:border-primary-500 outline-none text-lg transition-all" placeholder="¿Cómo te llamas?" />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Sexo</label>
-                <select name="gender" value={formData.gender} onChange={handleChange} className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none text-lg focus:ring-4 focus:ring-primary-100">
-                  <option value="male">Hombre</option>
-                  <option value="female">Mujer</option>
-                </select>
-              </div>
-              <InputField label="Edad" name="age" type="number" value={formData.age} />
-              <InputField label="Peso Actual (kg)" name="weight" type="number" value={formData.weight} />
-              <InputField label="Altura (cm)" name="height" type="number" value={formData.height} />
+            <h2 className="text-2xl font-black text-gray-900">Tu Salud Primero</h2>
+            <p className="text-gray-500 text-sm">Por favor, indícanos si te encuentras en alguna de las siguientes situaciones:</p>
+            
+            <div className="space-y-4">
+              {[
+                { id: 'pregnancy', label: 'Embarazo o Lactancia' },
+                { id: 'under18', label: 'Menor de 18 años' },
+                { id: 'diabetesHeart', label: 'Diabetes o cardiopatías' },
+                { id: 'eatingDisorders', label: 'Trastornos alimentarios' }
+              ].map((item) => (
+                <label key={item.id} className="flex items-center p-4 rounded-xl border border-gray-100 bg-gray-50 cursor-pointer hover:bg-gray-100 transition-all">
+                  <input
+                    type="checkbox"
+                    checked={(safetyCheck as any)[item.id]}
+                    onChange={(e) => setSafetyCheck(prev => ({ ...prev, [item.id]: e.target.checked }))}
+                    className="w-5 h-5 rounded border-gray-300 text-primary-600 focus:ring-primary-500 accent-primary-600"
+                  />
+                  <span className="ml-4 text-gray-700 font-semibold">{item.label}</span>
+                </label>
+              ))}
             </div>
 
             <button
               onClick={nextStep}
-              disabled={isStep1Disabled}
-              className="w-full py-4 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-2xl shadow-lg transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full py-5 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-2xl shadow-lg transition-all active:scale-[0.98]"
             >
-              Siguiente: Mi estilo de vida
+              Siguiente Paso
             </button>
           </div>
         )}
 
         {step === 2 && (
           <div className="space-y-8 bg-white p-8 rounded-3xl shadow-xl border border-gray-100 fade-in">
-            <h2 className="text-2xl font-black text-gray-900">Estilo de vida y Meta</h2>
+            <h2 className="text-2xl font-black text-gray-900">Datos Físicos</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="md:col-span-2">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Sexo</label>
+                <div className="grid grid-cols-2 gap-4">
+                  <button 
+                    onClick={() => setFormData((p: any) => ({...p, gender: 'male'}))} 
+                    className={`py-4 rounded-xl border font-bold transition-all ${formData.gender === 'male' ? 'bg-primary-600 border-primary-600 text-white shadow-md' : 'bg-white border-gray-200 text-gray-500'}`}
+                  >
+                    Hombre
+                  </button>
+                  <button 
+                    onClick={() => setFormData((p: any) => ({...p, gender: 'female'}))} 
+                    className={`py-4 rounded-xl border font-bold transition-all ${formData.gender === 'female' ? 'bg-primary-600 border-primary-600 text-white shadow-md' : 'bg-white border-gray-200 text-gray-500'}`}
+                  >
+                    Mujer
+                  </button>
+                </div>
+              </div>
+              
+              <div className="flex flex-col">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Edad</label>
+                <input 
+                  type="number" 
+                  name="age" 
+                  value={formData.age} 
+                  onChange={handleChange} 
+                  onFocus={handleFocus}
+                  className={`w-full px-4 py-4 rounded-xl border outline-none text-xl font-bold text-gray-900 transition-colors ${fieldErrors.age ? 'border-red-500 bg-red-50' : 'border-gray-200'}`} 
+                />
+                {fieldErrors.age && <p className="text-red-500 text-[11px] mt-1 font-bold">{fieldErrors.age}</p>}
+              </div>
+
+              <div className="flex flex-col">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Peso (kg)</label>
+                <input 
+                  type="number" 
+                  name="weight" 
+                  value={formData.weight} 
+                  onChange={handleChange} 
+                  onFocus={handleFocus}
+                  className={`w-full px-4 py-4 rounded-xl border outline-none text-xl font-bold text-gray-900 transition-colors ${fieldErrors.weight ? 'border-red-500 bg-red-50' : 'border-gray-200'}`} 
+                />
+                {fieldErrors.weight && <p className="text-red-500 text-[11px] mt-1 font-bold">{fieldErrors.weight}</p>}
+              </div>
+
+              <div className="md:col-span-2 flex flex-col">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Altura (cm)</label>
+                <input 
+                  type="number" 
+                  name="height" 
+                  value={formData.height} 
+                  onChange={handleChange} 
+                  onFocus={handleFocus}
+                  className={`w-full px-4 py-4 rounded-xl border outline-none text-xl font-bold text-gray-900 transition-colors ${fieldErrors.height ? 'border-red-500 bg-red-50' : 'border-gray-200'}`} 
+                />
+                {fieldErrors.height && <p className="text-red-500 text-[11px] mt-1 font-bold">{fieldErrors.height}</p>}
+              </div>
+            </div>
+
+            <button
+              onClick={nextStep}
+              className="w-full py-5 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-2xl shadow-lg transition-all active:scale-[0.98]"
+            >
+              Siguiente
+            </button>
+          </div>
+        )}
+
+        {step === 3 && (
+          <div className="space-y-8 bg-white p-8 rounded-3xl shadow-xl border border-gray-100 fade-in text-center">
+            <h2 className="text-2xl font-black text-gray-900">¿Cómo te llamas?</h2>
+            <div className="max-w-md mx-auto">
+              <input 
+                type="text" 
+                name="name" 
+                value={formData.name} 
+                onChange={handleChange} 
+                className="w-full px-4 py-5 rounded-2xl border border-gray-200 focus:ring-4 focus:ring-primary-100 focus:border-primary-500 outline-none text-2xl text-center font-bold text-gray-900 transition-all" 
+                placeholder="Nombre (Opcional)" 
+              />
+              <p className="mt-4 text-sm text-gray-400">Puedes continuar sin introducir un nombre.</p>
+            </div>
+
+            <button
+              onClick={nextStep}
+              className="w-full py-5 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-2xl shadow-lg transition-all active:scale-[0.98]"
+            >
+              Siguiente: Estilo de vida
+            </button>
+          </div>
+        )}
+
+        {step === 4 && (
+          <div className="space-y-8 bg-white p-8 rounded-3xl shadow-xl border border-gray-100 fade-in">
+            <h2 className="text-2xl font-black text-gray-900">Actividad y Objetivo</h2>
             
             <div className="space-y-6">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-4">¿Cuál es tu nivel de actividad?</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-4">Nivel de actividad:</label>
                 <div className="grid grid-cols-1 gap-3">
                   {[
-                    { id: 'sedentary', label: 'Sedentario', desc: 'Poco o ningún ejercicio.' },
-                    { id: 'light', label: 'Ligero', desc: 'Ejercicio suave 1-3 días/semana.' },
-                    { id: 'moderate', label: 'Moderado', desc: 'Deporte intenso 3-5 días/semana.' },
-                    { id: 'heavy', label: 'Muy Activo', desc: 'Entrenamiento diario intenso.' }
+                    { id: 'sedentary', label: 'Sedentario', desc: 'Poco movimiento.' },
+                    { id: 'light', label: 'Ligero', desc: 'Ejercicio suave 1-3 días.' },
+                    { id: 'moderate', label: 'Moderado', desc: 'Deporte activo 3-5 días.' },
+                    { id: 'heavy', label: 'Intenso', desc: 'Entrenamiento diario.' }
                   ].map((act) => (
                     <button
                       key={act.id}
@@ -256,7 +355,7 @@ const Onboarding: React.FC<Props> = ({ onComplete, onCancel }) => {
                       onClick={() => setFormData((p: any) => ({...p, activityLevel: act.id}))}
                       className={`p-4 rounded-2xl border text-left transition-all ${formData.activityLevel === act.id ? 'bg-primary-50 border-primary-500 ring-2 ring-primary-500' : 'bg-white border-gray-200 hover:border-primary-300'}`}
                     >
-                      <p className="font-bold text-gray-900">{act.label}</p>
+                      <p className={`font-bold ${formData.activityLevel === act.id ? 'text-primary-700' : 'text-gray-900'}`}>{act.label}</p>
                       <p className="text-xs text-gray-500">{act.desc}</p>
                     </button>
                   ))}
@@ -264,7 +363,7 @@ const Onboarding: React.FC<Props> = ({ onComplete, onCancel }) => {
               </div>
 
               <div className="border-t pt-8">
-                <label className="block text-sm font-semibold text-gray-700 mb-4">¿Cuál es tu objetivo principal?</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-4">Tu Objetivo:</label>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                   {[
                     { id: 'lose', label: 'Perder Peso' },
@@ -275,7 +374,7 @@ const Onboarding: React.FC<Props> = ({ onComplete, onCancel }) => {
                       key={g.id}
                       type="button"
                       onClick={() => setFormData((p: any) => ({...p, goal: g.id}))}
-                      className={`py-4 px-2 rounded-2xl border text-sm font-bold transition-all ${formData.goal === g.id ? 'bg-primary-600 border-primary-600 text-white shadow-md' : 'bg-white border-gray-200 text-gray-600 hover:border-primary-400'}`}
+                      className={`py-4 px-2 rounded-2xl border text-sm font-bold transition-all ${formData.goal === g.id ? 'bg-primary-600 border-primary-600 text-white shadow-md' : 'bg-white border-gray-200 text-gray-500'}`}
                     >
                       {g.label}
                     </button>
@@ -286,60 +385,57 @@ const Onboarding: React.FC<Props> = ({ onComplete, onCancel }) => {
 
             <button
               onClick={nextStep}
-              className="w-full py-4 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-2xl shadow-lg transition-all active:scale-[0.98]"
+              className="w-full py-5 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-2xl shadow-lg transition-all active:scale-[0.98]"
             >
-              Casi listo: Preferencias
+              Continuar: Preferencias
             </button>
           </div>
         )}
 
-        {step === 3 && (
+        {step === 5 && (
           <div className="space-y-8 bg-white p-8 rounded-3xl shadow-xl border border-gray-100 fade-in">
             <h2 className="text-2xl font-black text-gray-900">Ajustes Finales</h2>
             
             <div className="space-y-8">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-4">¿Deseas realizar Ayuno Intermitente?</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-4">Ayuno Intermitente:</label>
                 <div className="grid grid-cols-1 gap-4">
                   {[
-                    { id: 'none', label: 'Sin Ayuno', desc: 'Ventana tradicional. Todas las comidas incluidas.' },
-                    { id: '16:8_morning', label: '16:8 - Mañana (Sin Desayuno)', desc: 'Comes de 12:00h a 20:00h.' },
-                    { id: '16:8_evening', label: '16:8 - Tarde (Sin Cena)', desc: 'Comes de 08:00h a 16:00h.' }
+                    { id: 'none', label: 'Sin Ayuno', desc: 'Horario tradicional.' },
+                    { id: '16:8_morning', label: '16:8 - Sin Desayuno', desc: 'Comes desde las 12:00h.' },
+                    { id: '16:8_evening', label: '16:8 - Sin Cena', desc: 'Terminas a las 16:00h.' }
                   ].map((f) => (
                     <button
                       key={f.id}
                       type="button"
                       onClick={() => setFormData((p: any) => ({...p, fasting: f.id}))}
-                      className={`p-5 rounded-2xl border text-left transition-all ${formData.fasting === f.id ? 'bg-primary-50 border-primary-500 ring-2 ring-primary-500 shadow-sm' : 'bg-white border-gray-200 hover:border-primary-300'}`}
+                      className={`p-5 rounded-2xl border text-left transition-all ${formData.fasting === f.id ? 'bg-primary-50 border-primary-500 ring-2 ring-primary-500' : 'bg-white border-gray-200'}`}
                     >
-                      <div className="flex justify-between items-center mb-1">
-                        <span className={`font-bold ${formData.fasting === f.id ? 'text-primary-700' : 'text-gray-900'}`}>{f.label}</span>
-                        {formData.fasting === f.id && <svg className="w-5 h-5 text-primary-600" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>}
-                      </div>
-                      <p className="text-xs text-gray-500 leading-relaxed">{f.desc}</p>
+                      <span className={`font-bold block ${formData.fasting === f.id ? 'text-primary-700' : 'text-gray-900'}`}>{f.label}</span>
+                      <p className="text-xs text-gray-500">{f.desc}</p>
                     </button>
                   ))}
                 </div>
               </div>
 
               <div className="border-t pt-8">
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Alergias o Restricciones</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Alergias:</label>
                 <textarea
                   name="allergies"
                   value={formData.allergies}
                   onChange={handleChange}
                   rows={3}
-                  className="w-full px-4 py-3 rounded-2xl border border-gray-200 focus:ring-4 focus:ring-primary-100 focus:border-primary-500 outline-none transition-all text-lg"
-                  placeholder="Ej: gluten, marisco, nueces..."
+                  className="w-full px-4 py-4 rounded-2xl border border-gray-200 outline-none text-lg font-medium"
+                  placeholder="Ej: gluten, lactosa..."
                 />
               </div>
             </div>
 
             <button
               onClick={handleSubmit}
-              className="w-full py-4 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-2xl shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98]"
+              className="w-full py-5 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-2xl shadow-lg transition-all active:scale-[0.98]"
             >
-              Generar Mi Plan Nutricional AESAN
+              Generar Mi Plan
             </button>
           </div>
         )}
