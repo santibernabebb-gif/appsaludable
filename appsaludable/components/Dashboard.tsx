@@ -116,6 +116,19 @@ const Dashboard: React.FC<Props> = ({ user, plan, onNewPlan, onViewHistory }) =>
           </div>
         </div>
 
+        {/* Bloque Informativo de Calorías */}
+        <div className="no-print bg-primary-50 p-6 rounded-2xl border border-primary-100 mb-8 fade-in">
+          <div className="flex items-start">
+            <svg className="w-5 h-5 text-primary-600 mr-3 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <p className="text-primary-800 text-sm md:text-base font-medium leading-relaxed">
+              Según tus datos, tu cuerpo necesita aproximadamente <span className="font-bold text-primary-900">{plan.targetCalories} kcal</span> al día. 
+              Este plan está diseñado para ajustarse a ese objetivo.
+            </p>
+          </div>
+        </div>
+
         {/* Day Selector - No print */}
         <div className="no-print mb-8 flex overflow-x-auto pb-2 space-x-2 scrollbar-hide">
           {plan.days.map((d, i) => (
