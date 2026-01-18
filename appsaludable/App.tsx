@@ -19,7 +19,7 @@ const App: React.FC = () => {
                   Adelgaza Saludable
                 </span>
                 <span className="text-[10px] text-[#00a86b] font-bold uppercase tracking-wider leading-none">
-                  APP VERSION
+                  Santisystems
                 </span>
               </div>
             </Link>
