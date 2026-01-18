@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { UserData, WeeklyPlan, DayPlan, Recipe } from '../types';
+import { calculateTDEE } from '../constants';
 
 interface Props {
   user: UserData;
@@ -15,6 +16,17 @@ const Dashboard: React.FC<Props> = ({ user, plan, onNewPlan, onViewHistory }) =>
   if (!plan) return null;
 
   const currentDayPlan = plan.days[selectedDay];
+
+  // Cálculos calóricos basados en datos reales
+  const maintenance = calculateTDEE(
+    user.gender,
+    user.weight,
+    user.height,
+    user.age,
+    user.activityLevel
+  );
+  const target = plan.targetCalories;
+  const diff = target - maintenance;
 
   const handlePrint = () => {
     window.print();
@@ -109,9 +121,19 @@ const Dashboard: React.FC<Props> = ({ user, plan, onNewPlan, onViewHistory }) =>
             </div>
           </div>
           <div className="flex flex-wrap gap-8">
-            <div className="text-center">
-              <p className="text-xs text-gray-400 uppercase tracking-widest font-bold">Meta Diaria</p>
-              <p className="text-2xl font-black text-gray-900">{plan.targetCalories} <span className="text-sm font-normal text-gray-500">kcal</span></p>
+            <div className="text-right border-l pl-6 border-gray-50">
+              <p className="text-[10px] text-gray-400 uppercase tracking-widest font-bold mb-1">Análisis Calórico</p>
+              <div className="space-y-0.5">
+                <p className="text-xs text-gray-500 font-medium whitespace-nowrap">Calorías de mantenimiento: <span className="font-bold text-gray-700">{maintenance} kcal</span></p>
+                <p className="text-sm text-gray-700 font-medium whitespace-nowrap">Calorías del plan: <span className="font-bold text-primary-600">{target} kcal</span></p>
+                <p className="text-[10px] text-gray-400 font-semibold italic">
+                  {diff < 0 
+                    ? `Ajuste para pérdida de peso: –${Math.abs(diff)} kcal diarios (déficit moderado)` 
+                    : diff > 0 
+                      ? `Ajuste para ganancia de peso: +${Math.abs(diff)} kcal diarios (superávit moderado)`
+                      : 'Objetivo: mantenimiento de peso'}
+                </p>
+              </div>
             </div>
           </div>
         </div>
@@ -123,8 +145,8 @@ const Dashboard: React.FC<Props> = ({ user, plan, onNewPlan, onViewHistory }) =>
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <p className="text-primary-800 text-sm md:text-base font-medium leading-relaxed">
-              Según tus datos, tu cuerpo necesita aproximadamente <span className="font-bold text-primary-900">{plan.targetCalories} kcal</span> al día. 
-              Este plan está diseñado para ajustarse a ese objetivo.
+              Basado en tu perfil, tu cuerpo requiere <span className="font-bold text-primary-900">{maintenance} kcal</span> para mantenimiento. 
+              Este plan de <span className="font-bold text-primary-900">{target} kcal</span> se ajusta de forma equilibrada a tu objetivo personal.
             </p>
           </div>
         </div>
