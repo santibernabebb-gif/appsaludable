@@ -23,7 +23,7 @@ const Welcome: React.FC<Props> = ({ onStart }) => {
       
       <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-4">Adelgaza Saludable</h1>
       <p className="text-lg md:text-xl text-gray-600 max-w-lg mb-10 leading-relaxed">
-        Tu asistente personal de nutrición inteligente. Crea planes mediterráneos personalizados supervisados por la AESAN.
+        Tu asistente personal de nutrición inteligente. Crea planes mediterráneos personalizados para alcanzar tus objetivos de salud.
       </p>
       
       <button
