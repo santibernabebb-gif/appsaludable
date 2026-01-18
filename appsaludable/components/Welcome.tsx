@@ -3,9 +3,11 @@ import React from 'react';
 
 interface Props {
   onStart: () => void;
+  onViewHistory: () => void;
+  hasHistory: boolean;
 }
 
-const Welcome: React.FC<Props> = ({ onStart }) => {
+const Welcome: React.FC<Props> = ({ onStart, onViewHistory, hasHistory }) => {
   return (
     <div className="relative flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-primary-50 to-white px-6 py-12 text-center fade-in">
       
@@ -13,6 +15,19 @@ const Welcome: React.FC<Props> = ({ onStart }) => {
       <div className="absolute top-6 left-6 text-left no-print">
         <p className="text-sm font-bold text-primary-700 leading-none">AdelgazaSaludable</p>
         <p className="text-[10px] text-gray-400 font-medium">SantiSystems</p>
+      </div>
+
+      {/* Navegación Superior Derecha */}
+      <div className="absolute top-4 md:top-6 right-6 no-print">
+        <button
+          onClick={onViewHistory}
+          className="text-xs font-bold text-primary-600 hover:text-primary-700 flex items-center bg-white shadow-sm border border-primary-100 px-3 py-2 rounded-xl transition-all active:scale-95"
+        >
+          <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          Historial recetas
+        </button>
       </div>
 
       <div className="w-24 h-24 bg-primary-500 rounded-2xl flex items-center justify-center shadow-lg mb-8">
@@ -26,12 +41,26 @@ const Welcome: React.FC<Props> = ({ onStart }) => {
         Tu asistente personal de nutrición inteligente. Crea planes mediterráneos personalizados para alcanzar tus objetivos de salud.
       </p>
       
-      <button
-        onClick={onStart}
-        className="px-10 py-4 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-xl shadow-xl transition-all hover:scale-105 focus:ring-4 focus:ring-primary-100 active:scale-95"
-      >
-        Empezar mi transformación
-      </button>
+      <div className="flex flex-col sm:flex-row gap-4">
+        <button
+          onClick={onStart}
+          className="px-10 py-4 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-xl shadow-xl transition-all hover:scale-105 focus:ring-4 focus:ring-primary-100 active:scale-95"
+        >
+          Empezar mi transformación
+        </button>
+        
+        {hasHistory && (
+          <button
+            onClick={onViewHistory}
+            className="px-10 py-4 bg-white hover:bg-gray-50 text-primary-700 font-bold rounded-xl shadow-md border border-primary-100 transition-all hover:scale-105 active:scale-95 flex items-center justify-center"
+          >
+            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Historial de recetas
+          </button>
+        )}
+      </div>
       
       <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-4xl">
         <div className="p-6 bg-white rounded-2xl shadow-sm border border-gray-100">

@@ -7,9 +7,11 @@ import { generatePlan } from '../services/geminiService';
 interface Props {
   onComplete: (user: UserData, plan: WeeklyPlan) => void;
   onCancel: () => void;
+  onViewHistory: () => void;
+  hasHistory: boolean;
 }
 
-const Onboarding: React.FC<Props> = ({ onComplete, onCancel }) => {
+const Onboarding: React.FC<Props> = ({ onComplete, onCancel, onViewHistory, hasHistory }) => {
   const [step, setStep] = useState(1);
   const [subStep4, setSubStep4] = useState(0); // 0 para actividad, 1 para objetivo (solo móvil)
   const [loading, setLoading] = useState(false);
@@ -159,6 +161,31 @@ const Onboarding: React.FC<Props> = ({ onComplete, onCancel }) => {
     </div>
   );
 
+  const TopNavigation = () => (
+    <div className="absolute top-4 md:top-6 right-6 flex flex-col items-end gap-2 no-print">
+      {step >= 2 && (
+        <button 
+          onClick={onCancel}
+          className="text-[10px] md:text-xs font-bold text-gray-500 hover:text-gray-700 flex items-center bg-white shadow-sm border border-gray-100 px-3 py-1.5 rounded-xl transition-all active:scale-95"
+        >
+          <svg className="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+          </svg>
+          Inicio
+        </button>
+      )}
+      <button 
+        onClick={onViewHistory}
+        className="text-[10px] md:text-xs font-bold text-primary-600 hover:text-primary-700 flex items-center bg-white shadow-sm border border-primary-50 px-3 py-1.5 rounded-xl transition-all active:scale-95"
+      >
+        <svg className="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        Historial recetas
+      </button>
+    </div>
+  );
+
   if (loading) {
     return (
       <div className="fixed inset-0 bg-white z-50 flex flex-col items-center justify-center p-6 text-center">
@@ -200,6 +227,7 @@ const Onboarding: React.FC<Props> = ({ onComplete, onCancel }) => {
   return (
     <div className="relative min-h-screen max-w-3xl mx-auto px-6 pt-16 md:pt-24 pb-8 md:pb-24 fade-in flex flex-col">
       <Branding />
+      <TopNavigation />
       
       <button onClick={prevStep} className="mb-4 md:mb-8 flex items-center text-primary-600 font-semibold hover:text-primary-700 w-fit transition-transform hover:-translate-x-1">
         <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">

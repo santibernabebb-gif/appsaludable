@@ -60,11 +60,26 @@ const App: React.FC = () => {
   };
 
   const renderView = () => {
+    const hasHistory = history.length > 0;
+    
     switch (view) {
       case 'welcome':
-        return <Welcome onStart={handleStartOnboarding} />;
+        return (
+          <Welcome 
+            onStart={handleStartOnboarding} 
+            onViewHistory={handleViewHistory}
+            hasHistory={hasHistory}
+          />
+        );
       case 'onboarding':
-        return <Onboarding onComplete={handleCompleteOnboarding} onCancel={() => setView('welcome')} />;
+        return (
+          <Onboarding 
+            onComplete={handleCompleteOnboarding} 
+            onCancel={() => setView('welcome')} 
+            onViewHistory={handleViewHistory}
+            hasHistory={hasHistory}
+          />
+        );
       case 'dashboard':
         return (
           <Dashboard 
@@ -79,11 +94,11 @@ const App: React.FC = () => {
           <History 
             items={history} 
             onLoad={handleLoadFromHistory} 
-            onBack={() => setView('dashboard')} 
+            onBack={() => setView(user ? 'dashboard' : 'welcome')} 
           />
         );
       default:
-        return <Welcome onStart={handleStartOnboarding} />;
+        return <Welcome onStart={handleStartOnboarding} onViewHistory={handleViewHistory} hasHistory={hasHistory} />;
     }
   };
 
