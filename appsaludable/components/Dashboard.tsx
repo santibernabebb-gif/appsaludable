@@ -42,8 +42,9 @@ const Dashboard: React.FC<Props> = ({ user, plan, onNewPlan, onViewHistory }) =>
   const FooterAESAN = () => (
     <footer className="mt-12 pt-8 border-t border-gray-200 w-full text-center pb-12 max-w-4xl mx-auto">
       <p className="text-[11px] text-gray-400 leading-relaxed italic">
-        Estas recetas siguen estrictamente las directrices nutricionales de la <span className="font-bold text-gray-500">AESAN</span>. 
-        IA supervisada para garantizar planes realistas, saludables y seguros.
+        Información orientativa basada en recomendaciones generales (p. ej., AESAN/OMS) y tus datos.
+        <br />
+        No sustituye consejo médico.
       </p>
       <p className="text-[10px] text-gray-300 mt-4 font-medium uppercase tracking-widest">SantiSystems 2026</p>
     </footer>
@@ -117,7 +118,7 @@ const Dashboard: React.FC<Props> = ({ user, plan, onNewPlan, onViewHistory }) =>
             </div>
             <div>
               <p className="text-sm text-gray-500">Plan para <span className="font-bold text-gray-900">{user.name}</span></p>
-              <p className="text-xs text-gray-400 italic">Basado en directrices AESAN</p>
+              <p className="text-xs text-gray-400 italic">Información nutricional orientativa</p>
             </div>
           </div>
           <div className="flex flex-wrap gap-8">
@@ -128,9 +129,9 @@ const Dashboard: React.FC<Props> = ({ user, plan, onNewPlan, onViewHistory }) =>
                 <p className="text-sm text-gray-700 font-medium whitespace-nowrap">Calorías del plan: <span className="font-bold text-primary-600">{target} kcal</span></p>
                 <p className="text-[10px] text-gray-400 font-semibold italic">
                   {diff < 0 
-                    ? `Ajuste para pérdida de peso: –${Math.abs(diff)} kcal diarios (déficit moderado)` 
+                    ? `Ajuste para pérdida de peso: –${Math.abs(diff)} kcal diarios` 
                     : diff > 0 
-                      ? `Ajuste para ganancia de peso: +${Math.abs(diff)} kcal diarios (superávit moderado)`
+                      ? `Ajuste para ganancia de peso: +${Math.abs(diff)} kcal diarios`
                       : 'Objetivo: mantenimiento de peso'}
                 </p>
               </div>
@@ -186,7 +187,7 @@ const Dashboard: React.FC<Props> = ({ user, plan, onNewPlan, onViewHistory }) =>
           </div>
           <h1 className="text-3xl font-black text-center mb-4">Plan Nutricional Semanal</h1>
           <p className="text-center mb-4 text-gray-900 font-bold">Usuario: {user.name} | Objetivo: {plan.targetCalories} kcal</p>
-          <p className="text-center mb-8 text-gray-600 italic text-sm">Este plan ha sido generado siguiendo estrictamente las recomendaciones de la AESAN.</p>
+          <p className="text-center mb-8 text-gray-600 italic text-sm">Información nutricional orientativa basada en datos generales.</p>
           
           {plan.days.map((day, dIdx) => (
             <div key={dIdx} className="page-break">
@@ -203,7 +204,7 @@ const Dashboard: React.FC<Props> = ({ user, plan, onNewPlan, onViewHistory }) =>
           ))}
 
           <footer className="mt-8 text-center border-t pt-4">
-            <p className="text-[10px] text-gray-400 italic">Generado por AdelgazaSaludable de SantiSystems. Supervisión AESAN activa para garantizar planes de salud reales.</p>
+            <p className="text-[10px] text-gray-400 italic">Generado por AdelgazaSaludable de SantiSystems. Información orientativa, no sustituye consejo médico.</p>
             <p className="text-[9px] text-gray-300 mt-1 font-medium uppercase tracking-widest">SantiSystems 2026</p>
           </footer>
         </div>

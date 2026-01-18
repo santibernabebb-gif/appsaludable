@@ -44,7 +44,7 @@ const History: React.FC<Props> = ({ items, onLoad, onBack }) => {
                 </div>
                 <div className="text-right">
                   <p className="text-primary-600 font-bold">{plan.targetCalories} kcal/día</p>
-                  <p className="text-xs text-gray-400 italic">Directrices AESAN</p>
+                  <p className="text-xs text-gray-400 italic">Datos nutricionales generales</p>
                 </div>
               </div>
             ))}
@@ -55,8 +55,9 @@ const History: React.FC<Props> = ({ items, onLoad, onBack }) => {
       {/* Footer AESAN */}
       <footer className="mt-12 pt-8 border-t border-gray-100 w-full text-center">
         <p className="text-[11px] text-gray-400 leading-relaxed italic">
-          Estas recetas siguen estrictamente las directrices nutricionales de la <span className="font-bold text-gray-500">AESAN</span>. 
-          SantiSystems garantiza la supervisión de la IA para planes seguros y saludables.
+          Información orientativa basada en recomendaciones generales (p. ej., AESAN/OMS) y tus datos.
+          <br />
+          No sustituye consejo médico.
         </p>
         <p className="text-[10px] text-gray-300 mt-4 font-medium uppercase tracking-widest">SantiSystems 2026</p>
       </footer>

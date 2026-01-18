@@ -162,7 +162,9 @@ const Onboarding: React.FC<Props> = ({ onComplete, onCancel, onViewHistory, hasH
   const FooterAESAN = () => (
     <div className="mt-8 md:mt-12 pt-6 md:pt-8 border-t border-gray-100 w-full text-center max-w-2xl mx-auto">
       <p className="text-[10px] md:text-[11px] text-gray-400 leading-relaxed italic">
-        Información orientativa basada en recomendaciones generales (p. ej., AESAN/OMS) y tus datos. No sustituye consejo médico. Si estás embarazada, lactando, eres menor o tienes una condición médica, consulta con un profesional.
+        Información orientativa basada en recomendaciones generales (p. ej., AESAN/OMS) y tus datos.
+        <br />
+        No sustituye consejo médico.
       </p>
       <p className="text-[9px] text-gray-300 mt-3 font-medium uppercase">SantiSystems 2026</p>
     </div>
@@ -258,8 +260,14 @@ const Onboarding: React.FC<Props> = ({ onComplete, onCancel, onViewHistory, hasH
       <div className="flex-1 flex flex-col justify-start">
         {step === 1 && (
           <div className="space-y-6 md:space-y-8 bg-white p-6 md:p-8 rounded-3xl shadow-xl border border-gray-100 fade-in">
-            <h2 className="text-xl md:text-2xl font-black text-gray-900">Tu Salud Primero</h2>
-            <p className="text-gray-500 text-sm">Por favor, indícanos si te encuentras en alguna de las siguientes situaciones:</p>
+            <div className="space-y-2">
+              <h2 className="text-xl md:text-2xl font-black text-gray-900">Tu Salud Primero</h2>
+              <p className="text-gray-500 text-sm leading-relaxed">
+                Por favor, indícanos si te encuentras en alguna de las siguientes situaciones.
+                <br />
+                <span className="font-semibold text-primary-700">Si estás embarazada, lactando, eres menor o tienes una condición médica, consulta con un profesional.</span>
+              </p>
+            </div>
             
             <div className="space-y-3 md:space-y-4">
               {[
