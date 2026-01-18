@@ -58,6 +58,7 @@ const History: React.FC<Props> = ({ items, onLoad, onBack }) => {
           Estas recetas siguen estrictamente las directrices nutricionales de la <span className="font-bold text-gray-500">AESAN</span>. 
           SantiSystems garantiza la supervisión de la IA para planes seguros y saludables.
         </p>
+        <p className="text-[10px] text-gray-300 mt-4 font-medium uppercase tracking-widest">SantiSystems 2026</p>
       </footer>
     </div>
   );

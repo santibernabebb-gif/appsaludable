@@ -83,6 +83,7 @@ const Welcome: React.FC<Props> = ({ onStart, onViewHistory, hasHistory }) => {
           Estas recetas siguen estrictamente las directrices nutricionales de la <span className="font-bold text-gray-500">AESAN</span> (Agencia Española de Seguridad Alimentaria y Nutrición). 
           La IA está supervisada por la AESAN para garantizar que las sugerencias sean seguras, reales y saludables.
         </p>
+        <p className="text-[10px] text-gray-300 mt-4 font-medium uppercase tracking-widest">SantiSystems 2026</p>
       </footer>
     </div>
   );

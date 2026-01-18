@@ -33,6 +33,7 @@ const Dashboard: React.FC<Props> = ({ user, plan, onNewPlan, onViewHistory }) =>
         Estas recetas siguen estrictamente las directrices nutricionales de la <span className="font-bold text-gray-500">AESAN</span>. 
         IA supervisada para garantizar planes realistas, saludables y seguros.
       </p>
+      <p className="text-[10px] text-gray-300 mt-4 font-medium uppercase tracking-widest">SantiSystems 2026</p>
     </footer>
   );
 
@@ -168,6 +169,7 @@ const Dashboard: React.FC<Props> = ({ user, plan, onNewPlan, onViewHistory }) =>
 
           <footer className="mt-8 text-center border-t pt-4">
             <p className="text-[10px] text-gray-400 italic">Generado por AdelgazaSaludable de SantiSystems. Supervisión AESAN activa para garantizar planes de salud reales.</p>
+            <p className="text-[9px] text-gray-300 mt-1 font-medium uppercase tracking-widest">SantiSystems 2026</p>
           </footer>
         </div>
 

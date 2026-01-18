@@ -158,6 +158,7 @@ const Onboarding: React.FC<Props> = ({ onComplete, onCancel, onViewHistory, hasH
         Estas recetas siguen estrictamente las directrices nutricionales de la <span className="font-bold text-gray-500">AESAN</span>. 
         IA supervisada para garantizar que las sugerencias sean reales y saludables.
       </p>
+      <p className="text-[9px] text-gray-300 mt-3 font-medium uppercase">SantiSystems 2026</p>
     </div>
   );
 
