@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -96,8 +95,23 @@
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
           navigator.serviceWorker.register('/service-worker.js')
-            .then(reg => console.log('SW registered'))
+            .then(reg => {
+              console.log('SW registered');
+              
+              // Forzar comprobación de actualización al iniciar la app
+              reg.update();
+
+              // Si hay un Service Worker esperando, forzar que tome el control
+              if (reg.waiting) {
+                reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+              }
+            })
             .catch(err => console.log('SW registration failed', err));
+        });
+
+        // Detectar cuando el nuevo Service Worker toma el control y recargar
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+          window.location.reload();
         });
       }
     </script>

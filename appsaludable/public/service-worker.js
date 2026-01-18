@@ -1,5 +1,4 @@
-
-const CACHE_NAME = 'adelgaza-saludable-v2';
+const CACHE_NAME = 'appsaludable-cache-v3';
 const ASSETS_TO_CACHE = [
   '/manifest.webmanifest'
 ];
@@ -7,6 +6,7 @@ const ASSETS_TO_CACHE = [
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
+      // Solo cacheamos el manifest y assets críticos, nunca el HTML principal (/)
       return cache.addAll(ASSETS_TO_CACHE);
     })
   );
@@ -18,7 +18,9 @@ self.addEventListener('activate', (event) => {
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((name) => {
+          // Borramos cualquier caché que no sea el actual para evitar conflictos de versiones
           if (name !== CACHE_NAME) {
+            console.log('Service Worker: Borrando caché antiguo:', name);
             return caches.delete(name);
           }
         })
@@ -36,19 +38,20 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Estrategia Network-First para navegación (HTML principal)
-  // Esto evita que se sirva un index.html viejo que apunte a JS/CSS inexistentes (hash viejo)
+  // Estrategia Network-First para navegación (HTML principal / index.html)
+  // Esto es CRÍTICO para evitar que se cargue un HTML viejo con hashes de JS inexistentes
   if (event.request.mode === 'navigate') {
     event.respondWith(
       fetch(event.request).catch(() => {
-        // Fallback a cache solo si el fetch falla y el recurso está cacheado
+        // En navegación, solo intentamos el caché si el fetch falla (offline real)
         return caches.match(event.request);
       })
     );
     return;
   }
 
-  // Estrategia Cache-First para el resto de recursos estáticos (assets, manifest)
+  // Para el resto de recursos (imágenes, manifest, assets con hash en el nombre)
+  // usamos Cache-First para mejorar la velocidad
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       return cachedResponse || fetch(event.request);
