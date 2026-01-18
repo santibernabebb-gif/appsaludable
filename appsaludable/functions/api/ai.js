@@ -30,8 +30,24 @@ export async function onRequestPost(context) {
     
     Alergias/Restricciones: ${user.allergies || 'Ninguna'}.
     
-    RESPONDE EXCLUSIVAMENTE EN FORMATO JSON.
-    Importante: Si el usuario salta una comida por el ayuno, el campo correspondiente debe ser null. 
+    RESPONDE EXCLUSIVAMENTE EN FORMATO JSON:
+    {
+      "days": [
+        {
+          "day": "Lunes",
+          "meals": {
+            "breakfast": { "name": "...", "ingredients": ["..."], "instructions": ["..."], "calories": 0, "prepTime": 0 },
+            "snack1": { "name": "...", "ingredients": ["..."], "instructions": ["..."], "calories": 0, "prepTime": 0 },
+            "lunch": { "name": "...", "ingredients": ["..."], "instructions": ["..."], "calories": 0, "prepTime": 0 },
+            "snack2": { "name": "...", "ingredients": ["..."], "instructions": ["..."], "calories": 0, "prepTime": 0 },
+            "dinner": { "name": "...", "ingredients": ["..."], "instructions": ["..."], "calories": 0, "prepTime": 0 }
+          },
+          "totalCalories": 0
+        }
+      ]
+    }
+    
+    Importante: Si el usuario salta una comida por el ayuno, el campo correspondiente en el JSON debe ser null. 
     Asegúrate de que las recetas sean variadas y realistas.`;
 
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`, {
@@ -42,42 +58,7 @@ export async function onRequestPost(context) {
         generationConfig: {
           responseMimeType: "application/json",
           temperature: 0.65,
-          maxOutputTokens: 3500,
-          responseSchema: {
-            type: "OBJECT",
-            properties: {
-              days: {
-                type: "ARRAY",
-                items: {
-                  type: "OBJECT",
-                  properties: {
-                    day: { type: "STRING" },
-                    totalCalories: { type: "NUMBER" },
-                    meals: {
-                      type: "OBJECT",
-                      properties: {
-                        breakfast: { 
-                          type: "OBJECT", 
-                          nullable: true,
-                          properties: {
-                            name: { type: "STRING" },
-                            ingredients: { type: "ARRAY", items: { type: "STRING" } },
-                            instructions: { type: "ARRAY", items: { type: "STRING" } },
-                            calories: { type: "NUMBER" },
-                            prepTime: { type: "NUMBER" }
-                          }
-                        },
-                        snack1: { type: "OBJECT", nullable: true },
-                        lunch: { type: "OBJECT" },
-                        snack2: { type: "OBJECT", nullable: true },
-                        dinner: { type: "OBJECT", nullable: true }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
+          maxOutputTokens: 3500
         }
       })
     });
