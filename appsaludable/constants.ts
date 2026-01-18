@@ -27,8 +27,26 @@ export const calculateTDEE = (
   return Math.round(bmr * ACTIVITY_MULTIPLIERS[activity]);
 };
 
-export const calculateTargetCalories = (tdee: number, goal: 'lose' | 'maintain' | 'gain'): number => {
-  if (goal === 'lose') return tdee - 500;
-  if (goal === 'gain') return tdee + 500;
-  return tdee;
+export const calculateTargetCalories = (
+  tdee: number, 
+  goal: 'lose' | 'maintain' | 'gain',
+  gender: 'male' | 'female',
+  pace: 'gentle' | 'moderate' | 'fast' = 'moderate'
+): number => {
+  let target = tdee;
+
+  if (goal === 'lose') {
+    const deficit = pace === 'gentle' ? 250 : pace === 'moderate' ? 350 : 500;
+    target = tdee - deficit;
+  } else if (goal === 'gain') {
+    target = tdee + 500;
+  } else {
+    target = tdee;
+  }
+
+  // Límite de seguridad razonable
+  const minCals = gender === 'female' ? 1200 : (gender === 'male' ? 1500 : 1200);
+  
+  const finalTarget = Math.round(target);
+  return finalTarget < minCals ? minCals : finalTarget;
 };

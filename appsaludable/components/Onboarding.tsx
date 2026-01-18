@@ -28,6 +28,7 @@ const Onboarding: React.FC<Props> = ({ onComplete, onCancel, onViewHistory, hasH
     gender: 'male',
     activityLevel: 'light',
     goal: 'lose',
+    weightLossPace: 'moderate',
     dietType: 'mediterranean',
     fasting: 'none',
     allergies: ''
@@ -134,7 +135,13 @@ const Onboarding: React.FC<Props> = ({ onComplete, onCancel, onViewHistory, hasH
         finalData.age,
         finalData.activityLevel
       );
-      const targetCals = calculateTargetCalories(tdee, finalData.goal);
+      
+      const targetCals = calculateTargetCalories(
+        tdee, 
+        finalData.goal, 
+        finalData.gender, 
+        (finalData as any).weightLossPace
+      );
       
       const plan = await generatePlan(finalData, targetCals);
       onComplete(finalData, plan);
@@ -155,8 +162,7 @@ const Onboarding: React.FC<Props> = ({ onComplete, onCancel, onViewHistory, hasH
   const FooterAESAN = () => (
     <div className="mt-8 md:mt-12 pt-6 md:pt-8 border-t border-gray-100 w-full text-center max-w-2xl mx-auto">
       <p className="text-[10px] md:text-[11px] text-gray-400 leading-relaxed italic">
-        Estas recetas siguen estrictamente las directrices nutricionales de la <span className="font-bold text-gray-500">AESAN</span>. 
-        IA supervisada para garantizar que las sugerencias sean reales y saludables.
+        Información orientativa basada en recomendaciones generales (p. ej., AESAN/OMS) y tus datos. No sustituye consejo médico. Si estás embarazada, lactando, eres menor o tienes una condición médica, consulta con un profesional.
       </p>
       <p className="text-[9px] text-gray-300 mt-3 font-medium uppercase">SantiSystems 2026</p>
     </div>
@@ -193,7 +199,7 @@ const Onboarding: React.FC<Props> = ({ onComplete, onCancel, onViewHistory, hasH
         <Branding />
         <div className="w-16 h-16 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin mb-6"></div>
         <h2 className="text-2xl font-bold text-gray-800 mb-2">Generando Plan Saludable...</h2>
-        <p className="text-gray-500 max-w-xs">Nuestra IA supervisada por la AESAN está configurando tus comidas.</p>
+        <p className="text-gray-500 max-w-xs">Generando tu plan con IA basado en recomendaciones generales de nutrición. Un momento…</p>
         <FooterAESAN />
       </div>
     );
@@ -430,6 +436,29 @@ const Onboarding: React.FC<Props> = ({ onComplete, onCancel, onViewHistory, hasH
                       </button>
                     ))}
                   </div>
+
+                  {formData.goal === 'lose' && (
+                    <div className="mt-6 p-4 bg-gray-50 rounded-2xl border border-gray-100 fade-in">
+                      <label className="block text-sm font-semibold text-gray-700 mb-3">Ritmo de pérdida deseado:</label>
+                      <div className="grid grid-cols-3 gap-2">
+                        {[
+                          { id: 'gentle', label: 'Suave', desc: '-250 kcal' },
+                          { id: 'moderate', label: 'Moderado', desc: '-350 kcal' },
+                          { id: 'fast', label: 'Rápido', desc: '-500 kcal' }
+                        ].map((p) => (
+                          <button
+                            key={p.id}
+                            type="button"
+                            onClick={() => setFormData((prev: any) => ({...prev, weightLossPace: p.id}))}
+                            className={`py-2 px-1 rounded-xl border text-[10px] md:text-xs font-bold transition-all flex flex-col items-center justify-center ${formData.weightLossPace === p.id ? 'bg-primary-600 border-primary-600 text-white shadow-md' : 'bg-white border-gray-200 text-gray-400'}`}
+                          >
+                            <span>{p.label}</span>
+                            <span className={`text-[8px] font-normal ${formData.weightLossPace === p.id ? 'text-primary-100' : 'text-gray-400'}`}>{p.desc}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 
 interface Props {
   onStart: () => void;
@@ -80,8 +80,7 @@ const Welcome: React.FC<Props> = ({ onStart, onViewHistory, hasHistory }) => {
       {/* Footer AESAN */}
       <footer className="mt-12 pt-8 border-t border-gray-100 w-full max-w-2xl">
         <p className="text-[11px] text-gray-400 leading-relaxed italic">
-          Estas recetas siguen estrictamente las directrices nutricionales de la <span className="font-bold text-gray-500">AESAN</span> (Agencia Española de Seguridad Alimentaria y Nutrición). 
-          La IA está supervisada por la AESAN para garantizar que las sugerencias sean seguras, reales y saludables.
+          Información orientativa. Basado en recomendaciones generales (p. ej., AESAN/OMS) y tus datos. No sustituye consejo médico.
         </p>
         <p className="text-[10px] text-gray-300 mt-4 font-medium uppercase tracking-widest">SantiSystems 2026</p>
       </footer>
