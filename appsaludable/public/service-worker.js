@@ -1,8 +1,7 @@
 
-const CACHE_NAME = 'adelgaza-saludable-v1';
+const CACHE_NAME = 'adelgaza-saludable-v2';
 const ASSETS_TO_CACHE = [
-  '/manifest.webmanifest',
-  'https://picsum.photos/32/32'
+  '/manifest.webmanifest'
 ];
 
 self.addEventListener('install', (event) => {
@@ -18,7 +17,11 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
-        cacheNames.filter(name => name !== CACHE_NAME).map(name => caches.delete(name))
+        cacheNames.map((name) => {
+          if (name !== CACHE_NAME) {
+            return caches.delete(name);
+          }
+        })
       );
     })
   );
@@ -28,18 +31,27 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
-  // Network-first for HTML / Root
+  // No interceptar llamadas a la API
+  if (url.pathname.includes('/api/')) {
+    return;
+  }
+
+  // Estrategia Network-First para navegación (HTML principal)
+  // Esto evita que se sirva un index.html viejo que apunte a JS/CSS inexistentes (hash viejo)
   if (event.request.mode === 'navigate') {
     event.respondWith(
-      fetch(event.request).catch(() => caches.match('/index.html'))
+      fetch(event.request).catch(() => {
+        // Fallback a cache solo si el fetch falla y el recurso está cacheado
+        return caches.match(event.request);
+      })
     );
     return;
   }
 
-  // Cache-first for images and other assets defined in ASSETS_TO_CACHE
+  // Estrategia Cache-First para el resto de recursos estáticos (assets, manifest)
   event.respondWith(
-    caches.match(event.request).then((response) => {
-      return response || fetch(event.request);
+    caches.match(event.request).then((cachedResponse) => {
+      return cachedResponse || fetch(event.request);
     })
   );
 });
